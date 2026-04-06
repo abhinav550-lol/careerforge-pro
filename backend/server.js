@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 
+
 dotenv.config();
 
 const app = express();
@@ -35,8 +36,10 @@ app.use(
 // ── Routes ─────────────────────────────────────────────────
 // import authRoutes from "./routes/auth.routes.js";
 // import userRoutes from "./routes/user.routes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
+app.use("/api/resumes", resumeRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "CareerForge Pro API is running 🚀" });
