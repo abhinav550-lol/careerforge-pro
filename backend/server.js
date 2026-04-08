@@ -36,6 +36,8 @@ app.use(
 // ── Routes ─────────────────────────────────────────────────
 // import authRoutes from "./routes/auth.routes.js";
 // import userRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/authRoutes.js";
+app.use("/api/auth", authRoutes);
 import resumeRoutes from "./routes/resumeRoutes.js";
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);

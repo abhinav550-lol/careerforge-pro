@@ -1,39 +1,21 @@
 import Resume from "../models/Resume.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { successResponse, errorResponse } from "../helpers/responseHandler.js";
 
 // Create a new resume
-export const createResume = async (req, res) => {
-  try {
-    const resume = new Resume(req.body);
-    await resume.save();
-    res.status(201).json({ success: true, data: resume });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
+export const createResume = asyncHandler(async (req, res) => {
+  const resume = await Resume.create(req.body);
+  successResponse(res, resume, "Resume created successfully");
+});
+
+
 
 // Get all resumes
-export const getResumes = async (req, res) => {
-  try {
-    const { page = 1, limit = 10, sortBy = "createdAt", order = "desc" } = req.query;
+export const getResumes = asyncHandler(async (req, res) => {
+  const resumes = await Resume.find({ user: req.user.id });
+  successResponse(res, resumes);
+});
 
-    const resumes = await Resume.find()
-      .sort({ [sortBy]: order === "desc" ? -1 : 1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
-
-    const total = await Resume.countDocuments();
-
-    res.status(200).json({
-      success: true,
-      data: resumes,
-      total,
-      currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 // Get a single resume by ID
 export const getResumeById = async (req, res) => {
   try {
