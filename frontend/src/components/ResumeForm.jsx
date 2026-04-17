@@ -12,7 +12,7 @@ export default function ResumeForm() {
     bulletPoints: "",
     skills: "",
   });
-
+     //Navigate
   const navigate = useNavigate();
     //Score function
     const calculateScore = () => {
