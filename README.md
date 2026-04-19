@@ -12,8 +12,8 @@ To run Career froge pro locally, follow these steps:
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/sahidrajaansari/ai-resume-builder.git
-cd ai-resume-builder
+git clone https://github.com/abhinav550-lol/careerforge-pro.git
+cd careerforge-pro
 ```
 
 ### 2️⃣ Create Environment Files  
