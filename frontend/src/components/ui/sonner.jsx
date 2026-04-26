@@ -13,12 +13,17 @@ const Toaster = ({
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
+            // Updated: rounded-2xl, premium shadow, and subtle border logic
+            "group toast group-[.toaster]:bg-white group-[.toaster]:text-slate-900 group-[.toaster]:border-slate-100 group-[.toaster]:shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-[.toaster]:rounded-2xl group-[.toaster]:p-4",
+          description: "group-[.toast]:text-slate-500 group-[.toast]:font-medium group-[.toast]:text-xs",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            // Updated: Signature CareerForge Purple for actions
+            "group-[.toast]:bg-purple-600 group-[.toast]:text-white group-[.toast]:font-bold group-[.toast]:rounded-xl",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group-[.toast]:bg-slate-100 group-[.toast]:text-slate-500 group-[.toast]:font-bold group-[.toast]:rounded-xl",
+          // Added: Specific styling for success/error icons to match purple theme
+          success: "group-[.toast]:text-purple-600",
+          error: "group-[.toast]:text-red-500",
         },
       }}
       {...props} />)

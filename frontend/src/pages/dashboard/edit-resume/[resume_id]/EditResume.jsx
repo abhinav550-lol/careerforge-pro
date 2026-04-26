@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from "react";
 import ResumeForm from "../components/ResumeForm";
 import PreviewPage from "../components/PreviewPage";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getResumeData } from "@/Services/resumeAPI";
 import { useDispatch } from "react-redux";
 import { addResumeData } from "@/features/resume/resumeFeatures";
 import { motion } from "framer-motion";
-import { Wand2, Sparkles } from "lucide-react";
+import { Sparkles, ChevronLeft, Layout, ShieldCheck, Zap, Briefcase } from "lucide-react";
 
-/**
- * EditResume: The Orchestrator Layer
- * As per PRD Section 3 & 4, this component manages the split-screen 
- * Live Preview and the AI-MERN logical processing flow. [cite: 17, 84]
- */
 export function EditResume() {
   const { resume_id } = useParams();
   const dispatch = useDispatch();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Initializing Data + AI Memory (MongoDB Atlas Vector Search) [cite: 17, 36]
     getResumeData(resume_id)
       .then((data) => {
         dispatch(addResumeData(data.data));
@@ -29,50 +23,105 @@ export function EditResume() {
 
   if (isInitializing) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-slate-50">
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#F8FAFC]">
         <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          animate={{ 
+            rotate: [0, 360],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
+          className="relative"
         >
-          <Sparkles className="text-green-500 w-10 h-10" />
+          <div className="absolute inset-0 bg-purple-400/20 blur-2xl rounded-full" />
+          <div className="bg-white p-6 rounded-[2rem] shadow-xl relative z-10 border border-slate-50">
+            <Sparkles className="text-purple-600 w-12 h-12" />
+          </div>
         </motion.div>
+        <p className="mt-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 animate-pulse">
+          Synchronizing Your Profile...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      {/* AI Mandate Header: Guidance for the CareerForge Pro user [cite: 68] */}
-      <div className="px-10 py-4 bg-white border-b border-slate-200 flex justify-between items-center">
-        <div>
-          <h2 className="font-black text-xl text-slate-900 flex items-center gap-2">
-            <Wand2 className="text-purple-500 w-5 h-5" />
-            AI Architect Suite
-          </h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            Squadron Omega // Cognitive Architecture v1.5 [cite: 4, 29]
-          </p>
+    <div className="bg-[#F8FAFC] min-h-screen selection:bg-purple-100">
+      
+      {/* 1. PREMIUM STUDIO HEADER */}
+      <header className="sticky top-0 z-[100] px-8 py-4 bg-white/80 backdrop-blur-xl border-b border-slate-100 flex justify-between items-center">
+        <div className="flex items-center gap-6">
+          <Link to="/dashboard">
+            <motion.button 
+              whileHover={{ x: -4 }}
+              className="p-2.5 hover:bg-slate-50 rounded-2xl transition-all group border border-transparent hover:border-slate-100"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-900" />
+            </motion.button>
+          </Link>
+          <div className="h-8 w-[1px] bg-slate-100" />
+          <div>
+            <h2 className="font-black text-lg text-slate-900 flex items-center gap-2.5 leading-none uppercase tracking-tighter">
+              <div className="p-1.5 bg-purple-600 rounded-lg shadow-lg shadow-purple-100">
+                <Briefcase className="text-white w-3.5 h-3.5" />
+              </div>
+              Success <span className="text-purple-600">Studio</span>
+            </h2>
+            <div className="flex items-center gap-2 mt-1.5 ml-0.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                AI Optimization Active // Ready for Deployment
+              </p>
+            </div>
+          </div>
         </div>
         
-        <div className="flex gap-4">
-          <button className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
-            ATS Score Analysis [cite: 76]
-          </button>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2.5 px-5 py-2.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+             <ShieldCheck className="w-4 h-4 text-purple-600" />
+             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Professional Grade Verified</span>
+          </div>
+          <motion.button 
+            whileTap={{ scale: 0.95 }}
+            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl shadow-slate-200 hover:bg-purple-600 transition-all flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            <span className="hidden lg:inline text-[10px] font-black uppercase tracking-widest mr-1">Optimize Now</span>
+          </motion.button>
         </div>
-      </div>
+      </header>
 
-      {/* The Mandatory Split-Screen Live Preview  */}
-      <div className="grid grid-cols-1 md:grid-cols-2 p-6 lg:p-10 gap-6 lg:gap-10">
-        {/* Step 1 & 2: The Builder Core (Data Entry)  */}
-        <div className="h-[calc(100vh-160px)] overflow-y-auto pr-2 custom-scrollbar">
-          <ResumeForm />
-        </div>
+      {/* 2. DUAL-PANE WORKSPACE */}
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden">
+        
+        {/* LEFT: Builder Core */}
+        <section className="h-[calc(100vh-81px)] overflow-y-auto bg-white lg:border-r border-slate-100 scroll-smooth custom-scrollbar">
+          <div className="max-w-3xl mx-auto p-10 lg:p-16">
+            <ResumeForm />
+          </div>
+        </section>
 
-        {/* The Interface (UX): Instantaneous streaming response preview [cite: 39, 84] */}
-        <div className="h-[calc(100vh-160px)] overflow-y-auto sticky top-24 rounded-2xl shadow-2xl border border-slate-200 bg-white">
-          <PreviewPage />
-        </div>
-      </div>
+        {/* RIGHT: Live Preview Canvas */}
+        <section className="hidden lg:block h-[calc(100vh-81px)] overflow-y-auto bg-slate-50/50 p-12 scroll-smooth custom-scrollbar">
+          <div className="sticky top-0">
+            <div className="flex items-center gap-3 mb-8 ml-2">
+                <Layout className="w-4 h-4 text-purple-600/60" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Live Success Preview</span>
+                <div className="flex-1 h-[1px] bg-slate-200/50" />
+            </div>
+            
+            {/* Floating A4 Document Frame */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] border border-slate-200/50 overflow-hidden bg-white mx-auto scale-[0.98] hover:scale-100 transition-transform duration-700"
+            >
+              <div className="overflow-auto bg-white">
+                <PreviewPage />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

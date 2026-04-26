@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Palette, Check } from "lucide-react";
+import { Palette, Check, Sparkles } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
@@ -16,12 +16,12 @@ function ThemeColor({ resumeInfo }) {
   const dispatch = useDispatch();
   const { resume_id } = useParams();
   
-  // Professional palette curated for ATS-friendly resumes
+  // Professional palette curated for executive & universal appeal
   const colors = [
-    "#000000", "#1e293b", "#2563eb", "#0891b2", "#059669",
-    "#4f46e5", "#7c3aed", "#c026d3", "#db2777", "#e11d48",
-    "#ea580c", "#d97706", "#65a30d", "#4b5563", "#dc2626",
-    "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#f43f5e"
+    "#1e293b", "#0f172a", "#4f46e5", "#7c3aed", "#2563eb",
+    "#0891b2", "#059669", "#16a34a", "#ca8a04", "#d97706",
+    "#ea580c", "#dc2626", "#be123c", "#db2777", "#9333ea",
+    "#4b5563", "#334155", "#06b6d4", "#3b82f6", "#000000"
   ];
 
   const [selectedColor, setSelectedColor] = useState(resumeInfo?.themeColor);
@@ -29,7 +29,7 @@ function ThemeColor({ resumeInfo }) {
   const onColorSelect = async (color) => {
     setSelectedColor(color);
     
-    // UI (UX): Immediate Redux dispatch for real-time Live Preview
+    // UI (UX): Immediate Redux dispatch for zero-latency Live Preview
     dispatch(
       addResumeData({
         ...resumeInfo,
@@ -45,9 +45,9 @@ function ThemeColor({ resumeInfo }) {
 
     try {
       await updateThisResume(resume_id, data);
-      toast.success("Design Identity Updated");
+      toast.success("Professional Style Updated");
     } catch (error) {
-      toast.error("Failed to sync theme preferences");
+      toast.error("Failed to sync your preferences");
     }
   };
 
@@ -57,23 +57,24 @@ function ThemeColor({ resumeInfo }) {
         <Button 
           variant="outline" 
           size="sm" 
-          className="rounded-xl border-slate-200 gap-2 font-bold hover:bg-slate-50 transition-all"
+          className="rounded-2xl border-slate-100 bg-white h-11 px-5 gap-3 font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
         >
-          <Palette className="w-4 h-4 text-slate-600" />
-          <span>Theme</span>
+          <Palette className="w-4 h-4 text-purple-600" />
+          <span className="text-xs uppercase tracking-widest">Visual Style</span>
           <div 
-            className="w-3 h-3 rounded-full border border-slate-200 shadow-sm" 
-            style={{ backgroundColor: selectedColor || resumeInfo?.themeColor || "#000000" }} 
+            className="w-4 h-4 rounded-full border-2 border-white shadow-md ring-1 ring-slate-100" 
+            style={{ backgroundColor: selectedColor || resumeInfo?.themeColor || "#1e293b" }} 
           />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-4 rounded-2xl shadow-2xl border-slate-100">
-        <div className="space-y-3">
-          <div>
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-400">
-              Accent Palette
+
+      <PopoverContent className="w-72 p-6 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-none bg-white/95 backdrop-blur-xl">
+        <div className="space-y-5">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3 h-3 text-purple-600" />
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              Personal Brand Color
             </h2>
-            <p className="text-[10px] text-slate-500 italic">Select a color for your visual hierarchy.</p>
           </div>
           
           <div className="grid grid-cols-5 gap-3">
@@ -81,19 +82,29 @@ function ThemeColor({ resumeInfo }) {
               <div
                 key={index}
                 onClick={() => onColorSelect(item)}
-                className={`h-8 w-8 rounded-full cursor-pointer flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-sm
+                className={`h-9 w-9 rounded-full cursor-pointer flex items-center justify-center transition-all hover:scale-110 active:scale-90 shadow-sm relative group
                   ${(selectedColor === item || resumeInfo?.themeColor === item) 
-                    ? "ring-2 ring-slate-900 ring-offset-2" 
-                    : "hover:ring-2 hover:ring-slate-200 hover:ring-offset-1"
+                    ? "ring-2 ring-purple-600 ring-offset-2" 
+                    : "hover:ring-2 hover:ring-slate-100 hover:ring-offset-2"
                   }
                 `}
                 style={{ backgroundColor: item }}
               >
                 {(selectedColor === item || resumeInfo?.themeColor === item) && (
-                  <Check className="w-4 h-4 text-white drop-shadow-md" />
+                  <Check className="w-4 h-4 text-white drop-shadow-sm" />
                 )}
+                {/* Tooltip effect on hover */}
+                <div className="absolute -top-8 bg-slate-900 text-white text-[8px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-bold uppercase tracking-tighter">
+                  {item}
+                </div>
               </div>
             ))}
+          </div>
+
+          <div className="pt-2 border-t border-slate-50">
+            <p className="text-[9px] text-slate-400 font-medium leading-relaxed italic">
+              * Select a color that resonates with your industry standard.
+            </p>
           </div>
         </div>
       </PopoverContent>

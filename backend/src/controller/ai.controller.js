@@ -72,3 +72,37 @@ export const generateAIContent = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
+export const transformResume = async (req, res) => {
+  const { resumeData, jobDescription } = req.body;
+
+  const prompt = `
+    Act as a Senior Technical Recruiter. I will provide a Resume and a Job Description (JD).
+    Your task: Rewrite the Resume to be 100% ATS-friendly for this specific JD.
+    
+    1. SUMMARY: Rewrite to highlight matching keywords.
+    2. EXPERIENCE: Rewrite bullet points to focus on impact and metrics related to the JD.
+    3. SKILLS: Reorganize and add missing relevant skills found in the JD.
+    
+    Return ONLY a JSON object matching this structure:
+    {
+      "transformedData": {
+        "summary": "...",
+        "experience": [...],
+        "skills": [...]
+      }
+    }
+
+    Resume Data: ${JSON.stringify(resumeData)}
+    Job Description: ${jobDescription}
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const cleanText = text.replace(/```json|```/g, "");
+    res.json(JSON.parse(cleanText));
+  } catch (error) {
+    res.status(500).json({ error: "AI Transformation Failed" });
+  }
+};

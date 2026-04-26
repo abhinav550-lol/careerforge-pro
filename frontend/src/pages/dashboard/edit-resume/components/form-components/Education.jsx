@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { LoaderCircle, GraduationCap, Plus, Minus, Calendar, Award } from "lucide-react";
+import { LoaderCircle, GraduationCap, Plus, Minus, Calendar, Award, Save } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addResumeData } from "@/features/resume/resumeFeatures";
 import { useParams } from "react-router-dom";
@@ -23,14 +23,13 @@ const formFields = {
 
 function Education({ resumeInfo, enanbledNext }) {
   const [educationalList, setEducationalList] = useState(
-    resumeInfo?.education || [{ ...formFields }]
+    resumeInfo?.education?.length > 0 ? resumeInfo.education : [{ ...formFields }]
   );
   const { resume_id } = useParams();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Sync with Redux for real-time Live Preview updates 
     dispatch(addResumeData({ ...resumeInfo, education: educationalList }));
   }, [educationalList, dispatch]);
 
@@ -52,20 +51,16 @@ function Education({ resumeInfo, enanbledNext }) {
   };
 
   const onSave = async () => {
-    if (educationalList.length === 0) {
-      return toast.error("At least one educational record is mandatory.");
-    }
     setLoading(true);
-    
     const data = { data: { education: educationalList } };
     
     if (resume_id) {
       try {
         await updateThisResume(resume_id, data);
-        toast.success("Academic Profile Synced Successfully");
+        toast.success("Academic achievements updated!");
         if (enanbledNext) enanbledNext(true);
       } catch (error) {
-        toast.error(`Sync Failed: ${error.message}`);
+        toast.error("Failed to save education details.");
       } finally {
         setLoading(false);
       }
@@ -73,100 +68,104 @@ function Education({ resumeInfo, enanbledNext }) {
   };
 
   return (
-    <div className="p-8 bg-white shadow-xl rounded-2xl border-t-4 border-t-blue-500 border border-slate-100 mt-10">
-      <div className="mb-6">
-        <h2 className="font-black text-2xl text-slate-900 flex items-center gap-2">
-          <GraduationCap className="text-blue-500 w-6 h-6" />
-          Academic Background
-        </h2>
-        <p className="text-slate-500 font-medium">
-          Document your educational journey for the **AI Architect** to analyze.
-        </p>
+    <div className="p-8 bg-white shadow-xl rounded-[2.5rem] border border-slate-100 mt-10 relative overflow-hidden">
+      {/* 1. HEADER */}
+      <div className="mb-10 flex justify-between items-start">
+        <div>
+          <h2 className="font-black text-2xl text-slate-900 flex items-center gap-2 tracking-tighter uppercase">
+            <GraduationCap className="text-purple-600 w-6 h-6" />
+            Academic <span className="text-purple-600">Background</span>
+          </h2>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">
+            Share your educational qualifications and honors
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-6">
+      {/* 2. EDUCATION LIST */}
+      <div className="space-y-8">
         <AnimatePresence>
           {educationalList.map((item, index) => (
             <motion.div 
               key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-6 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4"
+              className="p-8 rounded-[2rem] bg-slate-50/50 border border-slate-100 space-y-6 relative hover:bg-white hover:border-purple-200 transition-all group"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100 shadow-sm">
-                  Institution {index + 1}
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-purple-600 bg-purple-50 px-4 py-1.5 rounded-full border border-purple-100">
+                  Qualification {index + 1}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="col-span-full space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">University / School Name</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Institution Name</label>
                   <Input
                     name="universityName"
-                    placeholder="e.g. Rajasthan Technical University"
-                    className="rounded-xl border-slate-200 focus:ring-2 focus:ring-blue-400/20"
+                    placeholder="Ex: University of Oxford"
+                    className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all font-bold"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.universityName}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Degree</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Degree Type</label>
                   <Input
                     name="degree"
-                    placeholder="e.g. Bachelor of Technology"
-                    className="rounded-xl border-slate-200"
+                    placeholder="Ex: Master of Arts"
+                    className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.degree}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Major / Specialization</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Major / Field of Study</label>
                   <Input
                     name="major"
-                    placeholder="e.g. Computer Science"
-                    className="rounded-xl border-slate-200"
+                    placeholder="Ex: Business Administration"
+                    className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.major}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 px-1">
-                    <Calendar className="w-3 h-3" /> Start Date
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 ml-1">
+                    <Calendar className="w-3 h-3 text-purple-600" /> Start Date
                   </label>
                   <Input
                     type="date"
                     name="startDate"
-                    className="rounded-xl border-slate-200"
+                    className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.startDate}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 px-1">
-                    <Calendar className="w-3 h-3" /> End Date
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 ml-1">
+                    <Calendar className="w-3 h-3 text-purple-600" /> Graduation Date
                   </label>
                   <Input
                     type="date"
                     name="endDate"
-                    className="rounded-xl border-slate-200"
+                    className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.endDate}
                   />
                 </div>
 
                 <div className="col-span-full space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 px-1">
-                    <Award className="w-3 h-3" /> Grade / Result
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 ml-1">
+                    <Award className="w-3 h-3 text-purple-600" /> Final Result / Grade
                   </label>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <select
                       name="gradeType"
-                      className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5"
+                      className="bg-white border border-slate-100 text-slate-700 text-sm rounded-xl px-4 h-12 focus:ring-8 focus:ring-purple-600/5 outline-none transition-all"
                       onChange={(e) => handleChange(e, index)}
                       value={item?.gradeType}
                     >
@@ -176,8 +175,8 @@ function Education({ resumeInfo, enanbledNext }) {
                     </select>
                     <Input
                       name="grade"
-                      placeholder="e.g. 8.5"
-                      className="rounded-xl border-slate-200"
+                      placeholder="Ex: 3.9"
+                      className="h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all flex-1"
                       onChange={(e) => handleChange(e, index)}
                       defaultValue={item?.grade}
                     />
@@ -185,11 +184,11 @@ function Education({ resumeInfo, enanbledNext }) {
                 </div>
 
                 <div className="col-span-full space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Description / Honors</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Key Achievements / Honors</label>
                   <Textarea
                     name="description"
-                    placeholder="Briefly describe your focus or key achievements..."
-                    className="rounded-xl border-slate-200 min-h-[100px]"
+                    placeholder="Mention specific awards, scholarships, or research projects..."
+                    className="rounded-2xl border-slate-100 bg-white min-h-[100px] p-4 focus:ring-8 focus:ring-purple-600/5 transition-all leading-relaxed"
                     onChange={(e) => handleChange(e, index)}
                     defaultValue={item?.description}
                   />
@@ -200,31 +199,37 @@ function Education({ resumeInfo, enanbledNext }) {
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-8 pt-6 border-t border-slate-100 gap-4">
-        <div className="flex gap-3">
+      {/* 3. FOOTER CONTROLS */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-12 pt-8 border-t border-slate-50 gap-6">
+        <div className="flex gap-4">
           <Button
             variant="outline"
             onClick={AddNewEducation}
-            className="rounded-xl border-slate-200 text-blue-600 hover:bg-blue-50 font-bold flex items-center gap-2"
+            className="h-12 rounded-2xl border-slate-200 text-slate-600 hover:bg-slate-50 font-bold px-6 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Education
           </Button>
           <Button
             variant="ghost"
             onClick={RemoveEducation}
-            className="rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 font-bold flex items-center gap-2"
+            className="h-12 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 font-bold px-6"
             disabled={educationalList.length <= 1}
           >
-            <Minus className="w-4 h-4" /> Remove
+            <Minus className="w-4 h-4" /> Remove Last
           </Button>
         </div>
         
         <Button 
           disabled={loading} 
           onClick={onSave}
-          className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-10 py-6 font-bold shadow-lg transition-all active:scale-95"
+          className="w-full sm:w-auto bg-slate-900 hover:bg-purple-600 text-white rounded-2xl px-12 h-14 font-black uppercase text-xs tracking-widest shadow-xl transition-all active:scale-95 flex items-center gap-3"
         >
-          {loading ? <LoaderCircle className="animate-spin" /> : "Sync Academic Profile"}
+          {loading ? <LoaderCircle className="animate-spin w-5 h-5" /> : (
+             <>
+               <Save className="w-4 h-4" />
+               Save Progress
+             </>
+          )}
         </Button>
       </div>
     </div>

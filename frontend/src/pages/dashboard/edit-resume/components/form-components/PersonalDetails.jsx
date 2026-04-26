@@ -4,9 +4,10 @@ import { addResumeData } from "@/features/resume/resumeFeatures";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
-import { LoaderCircle, User, MapPin, Phone, Mail, Briefcase } from "lucide-react";
+import { LoaderCircle, User, MapPin, Phone, Mail, Briefcase, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { updateThisResume } from "@/Services/resumeAPI";
+import { motion } from "framer-motion";
 
 function PersonalDetails({ resumeInfo, enanbledNext }) {
   const { resume_id } = useParams();
@@ -14,10 +15,9 @@ function PersonalDetails({ resumeInfo, enanbledNext }) {
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
-    enanbledNext(false); // Disables next button until save
+    if (enanbledNext) enanbledNext(false); 
     const { name, value } = e.target;
     
-    // UI (UX): Instantaneous updates for the split-screen Live Preview [cite: 84]
     dispatch(
       addResumeData({
         ...resumeInfo,
@@ -37,13 +37,11 @@ function PersonalDetails({ resumeInfo, enanbledNext }) {
 
     if (resume_id) {
       try {
-        // AI-MERN Hybrid Role: Syncing Data + AI Memory [cite: 17]
         await updateThisResume(resume_id, data);
-        toast.success("Architect Profile Updated");
-        enanbledNext(true);
+        toast.success("Profile updated successfully");
+        if (enanbledNext) enanbledNext(true);
       } catch (error) {
-        toast.error("Failed to sync profile");
-        console.error("Profile sync error:", error.message);
+        toast.error("Failed to update profile");
       } finally {
         setLoading(false);
       }
@@ -51,105 +49,134 @@ function PersonalDetails({ resumeInfo, enanbledNext }) {
   };
 
   return (
-    <div className="p-8 bg-white shadow-xl rounded-2xl border border-slate-100 mt-10">
-      <div className="mb-6">
-        <h2 className="font-black text-2xl text-slate-900 flex items-center gap-2">
-          <User className="text-green-500 w-6 h-6" />
-          Personal Architect Profile
-        </h2>
-        <p className="text-slate-500 font-medium">
-          Foundational identity for your **CareerForge Pro** project. [cite: 68]
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-10 bg-white shadow-2xl rounded-[2.5rem] border border-slate-100 mt-10 relative overflow-hidden"
+    >
+      {/* Background Subtle Accent */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-slate-50 rounded-full -mr-20 -mt-20 z-0" />
+
+      <div className="mb-10 relative z-10">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-slate-900 rounded-xl">
+            <User className="text-white w-5 h-5" />
+          </div>
+          <h2 className="font-black text-2xl text-slate-900 uppercase tracking-tighter">
+            Personal <span className="text-purple-600">Information</span>
+          </h2>
+        </div>
+        <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">
+          Foundational details for your professional profile.
         </p>
       </div>
 
-      <form onSubmit={onSave} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={onSave} className="space-y-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* First Name */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">First Name</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">First Name</label>
             <Input
               name="firstName"
-              placeholder="Pratik"
+              placeholder="Ex: Jane"
               defaultValue={resumeInfo?.firstName}
               required
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all"
             />
           </div>
+
+          {/* Last Name */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Last Name</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Last Name</label>
             <Input
               name="lastName"
-              placeholder="Suthar"
+              placeholder="Ex: Doe"
               defaultValue={resumeInfo?.lastName}
               required
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all"
             />
           </div>
+
+          {/* Job Title */}
           <div className="col-span-full space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1">
-              <Briefcase className="w-3 h-3" /> Target Job Title
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1 flex items-center gap-2">
+              <Briefcase className="w-3 h-3 text-purple-600" /> Current or Target Role
             </label>
             <Input
               name="jobTitle"
-              placeholder="Full Stack Developer // UI/UX Designer"
+              placeholder="Ex: Marketing Manager or Staff Nurse"
               defaultValue={resumeInfo?.jobTitle}
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all font-bold text-slate-700"
             />
           </div>
+
+          {/* Address */}
           <div className="col-span-full space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1">
-              <MapPin className="w-3 h-3" /> Professional Address
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1 flex items-center gap-2">
+              <MapPin className="w-3 h-3 text-purple-600" /> Location
             </label>
             <Input
               name="address"
-              placeholder="Rajasthan, India"
+              placeholder="Ex: London, UK or Remote"
               defaultValue={resumeInfo?.address}
               required
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all"
             />
           </div>
+
+          {/* Phone */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1">
-              <Phone className="w-3 h-3" /> Contact Phone
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1 flex items-center gap-2">
+              <Phone className="w-3 h-3 text-purple-600" /> Phone Number
             </label>
             <Input
               name="phone"
               type="tel"
+              placeholder="+44 20 7946 0000"
               defaultValue={resumeInfo?.phone}
               required
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all"
             />
           </div>
+
+          {/* Email */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1">
-              <Mail className="w-3 h-3" /> Professional Email
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1 flex items-center gap-2">
+              <Mail className="w-3 h-3 text-purple-600" /> Email Address
             </label>
             <Input
               name="email"
               type="email"
+              placeholder="jane.doe@example.com"
               defaultValue={resumeInfo?.email}
               required
               onChange={handleInputChange}
-              className="rounded-xl border-slate-200 focus:ring-2 focus:ring-green-400/20"
+              className="h-12 rounded-2xl border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 focus:border-purple-600/20 transition-all"
             />
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-slate-50">
+        <div className="flex justify-end pt-6 border-t border-slate-50">
           <Button 
             type="submit" 
             disabled={loading}
-            className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-8 py-6 font-bold shadow-lg shadow-slate-200 transition-all active:scale-95"
+            className="bg-slate-900 text-white hover:bg-purple-600 rounded-2xl px-12 h-14 font-black uppercase text-xs tracking-widest shadow-xl shadow-slate-200 transition-all active:scale-95 flex items-center gap-2"
           >
-            {loading ? <LoaderCircle className="animate-spin" /> : "Sync Profile"}
+            {loading ? <LoaderCircle className="animate-spin" /> : (
+              <>
+                <ShieldCheck className="w-4 h-4" />
+                Save Changes
+              </>
+            )}
           </Button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }
 

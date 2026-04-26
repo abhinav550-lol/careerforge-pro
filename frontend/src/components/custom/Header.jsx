@@ -5,11 +5,12 @@ import { useDispatch } from "react-redux";
 import { logoutUser } from "@/Services/login";
 import { addUserData } from "@/features/user/userFeatures";
 import { 
-  Rocket, 
+  Briefcase, 
   LogOut, 
   LayoutDashboard, 
   Sparkles 
-} from "lucide-react"; // Using Lucide for consistency
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 function Header({ user }) {
   const dispatch = useDispatch();
@@ -31,54 +32,61 @@ function Header({ user }) {
   return (
     <nav
       id="printHeader"
-      className="sticky top-0 z-[100] flex justify-between px-6 md:px-12 py-4 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 items-center shadow-sm"
+      className="sticky top-0 z-[100] flex justify-between px-6 md:px-12 lg:px-20 py-4 bg-white/80 backdrop-blur-xl border-b border-slate-100 items-center transition-all duration-300"
     >
-      {/* Brand Identity */}
-      <Link to="/" className="flex items-center gap-2 group">
-        <div className="bg-slate-900 p-2 rounded-xl group-hover:rotate-6 transition-transform duration-300">
-          <Rocket className="text-white w-5 h-5" />
+      {/* Brand Identity - Universal & Friendly */}
+      <Link to="/" className="flex items-center gap-3 group">
+        <div className="bg-purple-600 p-2.5 rounded-2xl group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-purple-200">
+          <Briefcase className="text-white w-5 h-5" />
         </div>
-        <h1 className="font-black text-xl tracking-tighter text-slate-900 uppercase">
-          Career<span className="text-purple-600">Forge</span> Pro
+        <h1 className="font-black text-2xl tracking-tighter text-slate-900 uppercase">
+          Career<span className="text-purple-600">Forge</span>
         </h1>
       </Link>
 
       <div className="flex items-center gap-3">
         {user ? (
           <>
+            {/* Dashboard Link - Approachable Naming */}
             <Button
               variant="ghost"
-              className={`hidden md:flex items-center gap-2 font-bold rounded-xl transition-all ${
+              className={`hidden md:flex items-center gap-2 font-bold rounded-2xl h-11 px-6 transition-all ${
                 location.pathname === "/dashboard" 
-                ? "bg-slate-100 text-slate-900" 
+                ? "bg-purple-50 text-purple-600" 
                 : "text-slate-500 hover:text-slate-900"
               }`}
               onClick={() => navigate("/dashboard")}
             >
               <LayoutDashboard className="w-4 h-4" />
-              Dashboard
+              Career Hub
             </Button>
 
+            {/* Logout - Clean & Professional */}
             <Button 
               variant="ghost"
-              className="text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl font-bold flex items-center gap-2"
+              className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-2xl h-11 px-4 font-bold flex items-center gap-2 transition-all"
               onClick={handleLogout}
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
             
-            {/* User Avatar Placeholder */}
-            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 border-2 border-white shadow-sm ml-2 cursor-pointer" />
+            {/* User Profile - Premium Visual */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 border-2 border-white shadow-md ml-2 cursor-pointer relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/10" />
+            </motion.div>
           </>
         ) : (
-          <div className="flex items-center gap-4">
-             <Link to="/auth/sign-in" className="hidden md:block text-sm font-bold text-slate-600 hover:text-slate-900">
-                Sign In
+          <div className="flex items-center gap-6">
+             <Link to="/auth/sign-in" className="hidden md:block text-xs font-black uppercase tracking-widest text-slate-500 hover:text-purple-600 transition-colors">
+               Sign In
              </Link>
              <Link to="/auth/sign-in">
-              <Button className="bg-slate-900 text-white font-bold px-6 h-11 rounded-xl shadow-lg shadow-slate-200 hover:scale-105 active:scale-95 transition-all flex gap-2">
-                Get Started <Sparkles className="w-4 h-4" />
+              <Button className="bg-slate-900 text-white font-black uppercase text-[10px] tracking-[0.2em] px-8 h-12 rounded-2xl shadow-xl shadow-slate-200 hover:bg-purple-600 transition-all active:scale-95 flex gap-2">
+                Get Started <Sparkles className="w-4 h-4 text-purple-400" />
               </Button>
             </Link>
           </div>
