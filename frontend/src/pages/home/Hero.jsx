@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+import { Link, } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -45,9 +46,10 @@ export default function Hero() {
           transition={{ delay: 0.3 }}
           className="mt-10 flex flex-col md:flex-row gap-4 justify-center"
         >
-          <Button size="lg" className="rounded-2xl bg-slate-900 text-white px-8 h-14 text-lg font-bold shadow-2xl hover:scale-105 transition-transform">
+          <Link to="/auth/sign-in"><Button size="lg" className="rounded-2xl bg-slate-900 text-white px-8 h-14 text-lg font-bold shadow-2xl hover:scale-105 transition-transform">
             Start Forging <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
+          </Link>
           <Button size="lg" variant="outline" className="rounded-2xl px-8 h-14 text-lg font-bold border-slate-200 bg-white shadow-sm">
             Watch Demo
           </Button>
