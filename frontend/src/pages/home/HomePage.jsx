@@ -1,146 +1,86 @@
-import Header from "@/components/custom/Header";
-import React, { useEffect } from "react";
-import heroSnapshot from "@/assets/heroSnapshot.png";
-import { useNavigate } from "react-router-dom";
-import { FaGithub, FaCircle, FaInfoCircle } from "react-icons/fa";
+import React from 'react';
+import Header from '@/components/custom/Header';
+import Hero from './Hero'; // We'll create this below
+import { Features } from './Features'; // We'll create this below
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { startUser } from "../../Services/login.js";
-import { useDispatch, useSelector } from "react-redux";
-import { addUserData } from "@/features/user/userFeatures.js";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
-function HomePage() {
-  const user = useSelector((state) => state.editUser.userData);
+function Homepage() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const handleClick = () => {
-    window.open(
-      "https://github.com/sahidrajaansari/Ai-Resume-Builder",
-      "_blank"
-    );
-  };
 
-  useEffect(() => {
-    const fetchResponse = async () => {
-      try {
-        const response = await startUser();
-        if (response.statusCode == 200) {
-          dispatch(addUserData(response.data));
-        } else {
-          dispatch(addUserData(""));
-        }
-      } catch (error) {
-        console.log(
-          "Printing from Home Page there was a error ->",
-          error.message
-        );
-        dispatch(addUserData(""));
-      }
-    };
-    fetchResponse();
-  }, []);
-
-  const hadnleGetStartedClick = () => {
-    if (user) {
-      console.log("Printing from Homepage User is There ");
-      navigate("/dashboard");
-    } else {
-      console.log("Printing for Homepage User Not Found");
-      navigate("/auth/sign-in");
-    }
-  };
   return (
-    <>
-      <Header user={user} />
-      <section className="pt-24 pb-20 bg-white">
-        <div className="px-12 mx-auto max-w-7xl">
-          <div className="w-full mx-auto text-left md:w-11/12 xl:w-9/12 md:text-center">
-            <h1 className="mb-8 text-4xl font-extrabold leading-none tracking-normal text-gray-900 md:text-6xl md:tracking-tight">
-              <span>Start</span>{" "}
-              <span className="block w-full py-2 text-transparent bg-clip-text leading-12 bg-gradient-to-r from-green-400 to-purple-500 lg:inline">
-                building a Resume
-              </span>{" "}
-              <span>for your next Job</span>
-            </h1>
-            <p className="px-0 mb-8 text-lg text-gray-600 md:text-xl lg:px-24">
-              Build. Refine. Shine. With AI-Driven Resumes
+    <div className="bg-slate-50 min-h-screen font-sans selection:bg-purple-100 selection:text-purple-900">
+      <Header />
+      
+      <main>
+        {/* 1. Hero Section */}
+        <Hero />
+
+        {/* 2. Trust / Social Proof (Optional) */}
+        <div className="py-10 bg-white border-y border-slate-100">
+          <div className="container mx-auto px-6 text-center">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-0">
+              Built with Industry-Leading Tech
             </p>
-            <div className="mb-4 space-x-0 md:space-x-2 md:mb-8">
-              <a
-                className="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg text-white bg-green-400 rounded-2xl sm:w-auto sm:mb-0 hover:cursor-pointer"
-                onClick={hadnleGetStartedClick}
-              >
-                Get Started
-                <svg
-                  className="w-4 h-4 ml-1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
-              </a>
-              <a
-                onClick={handleClick}
-                className="inline-flex items-center justify-center w-full px-6 py-3 mb-2 text-lg bg-gray-100 rounded-2xl sm:w-auto sm:mb-0 cursor-pointer"
-              >
-                Learn More
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  ></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-          <div className="w-full mx-auto mt-20 text-center md:w-10/12">
-            <div className="relative z-0 w-full mt-8">
-              <div className="relative overflow-hidden shadow-2xl">
-                <div className="flex items-center justify-between px-4 bg-gradient-to-r from-green-400 to-purple-500 h-11 rounded-t-xl">
-                  <div className="flex space-x-1.5">
-                    <FaCircle className="w-3 h-3 text-white hover:text-gray-300 transition duration-300 transform hover:scale-125" />
-                    <FaCircle className="w-3 h-3 text-white hover:text-gray-300 transition duration-300 transform hover:scale-125" />
-                    <FaCircle className="w-3 h-3 text-white hover:text-gray-300 transition duration-300 transform hover:scale-125" />
-                  </div>
-                  <FaInfoCircle className="text-white hover:text-gray-300 transition duration-300 transform hover:rotate-45" />
-                </div>
-                <img
-                  className="object-cover py-2 px-4 rounded-b-lg transition duration-300 transform hover:scale-105"
-                  src={heroSnapshot}
-                  alt="Dashboard"
-                />
-              </div>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 mt-6 opacity-50 grayscale hover:grayscale-0 transition-all">
+               <span className="font-bold text-xl text-slate-800">MERN</span>
+               <span className="font-bold text-xl text-slate-800">Google Gemini</span>
+               <span className="font-bold text-xl text-slate-800">Puppeteer</span>
+               <span className="font-bold text-xl text-slate-800">Tailwind</span>
             </div>
           </div>
         </div>
-      </section>
-      <footer className="bg-white" aria-labelledby="footer-heading">
-        <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24 p-5 flex justify-between">
-          <p className="text-xs leading-5 text-gray-500">
-            &copy; 2024 Ai-Resume-Builder. All rights reserved.
-          </p>
-          <div>
-            <Button variant="secondary" onClick={handleClick}>
-              <FaGithub className="w-4 h-4 mr-1" />
-              GitHub
-            </Button>
+
+        {/* 3. Bento Features Section */}
+        <Features />
+
+        {/* 4. Final Call to Action */}
+        <section className="py-24">
+          <div className="container mx-auto px-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden"
+            >
+              {/* Decorative Glow */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 blur-[80px] rounded-full" />
+              
+              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
+                Ready to beat the <br /> 
+                <span className="text-purple-400">ATS algorithms?</span>
+              </h2>
+              <p className="text-slate-400 mt-6 text-lg max-w-xl mx-auto font-medium">
+                Join thousands of developers using CareerForge Pro to land their dream roles.
+              </p>
+              <Button 
+                onClick={() => navigate('/dashboard')}
+                size="lg" 
+                className="mt-10 rounded-2xl bg-white text-slate-900 px-10 h-16 text-xl font-bold hover:bg-slate-100 hover:scale-105 transition-all"
+              >
+                Get Started Now <ArrowRight className="ml-2 w-6 h-6" />
+              </Button>
+            </motion.div>
           </div>
+        </section>
+      </main>
+
+      {/* 5. Footer */}
+      <footer className="py-12 border-t border-slate-200 bg-white">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-purple-600 w-5 h-5" />
+            <span className="font-black text-xl tracking-tighter uppercase">CareerForge Pro</span>
+          </div>
+          <p className="text-slate-500 text-sm font-medium">
+            © 2026 Developed by Pratik Suthar. Built for the Modern Web.
+          </p>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
 
-export default HomePage;
+export default Homepage;

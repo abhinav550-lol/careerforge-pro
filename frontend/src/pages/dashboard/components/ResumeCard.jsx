@@ -1,5 +1,5 @@
-import { FaEye, FaEdit, FaTrashAlt, FaBook, FaSpinner } from "react-icons/fa";
-import React from "react";
+import { FaEye, FaEdit, FaTrashAlt, FaSpinner, FaRobot, FaChartLine } from "react-icons/fa";
+import React, { useMemo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,93 +14,116 @@ import { Button } from "@/components/ui/button";
 import { deleteThisResume } from "@/Services/resumeAPI";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const gradients = [
-  "from-indigo-500 via-purple-500 to-pink-500",
-  "from-green-400 via-blue-500 to-purple-600",
-  "from-red-400 via-yellow-500 to-green-500",
-  "from-blue-500 via-teal-400 to-green-300",
-  "from-pink-500 via-red-500 to-yellow-500",
+  "from-slate-900 to-slate-800", // CareerForge Professional
+  "from-green-600 to-emerald-500", // Success/Growth
+  "from-indigo-600 to-purple-600", // AI/Innovation
 ];
-
-const getRandomGradient = () => {
-  return gradients[Math.floor(Math.random() * gradients.length)];
-};
 
 function ResumeCard({ resume, refreshData }) {
   const [loading, setLoading] = React.useState(false);
   const [openAlert, setOpenAlert] = React.useState(false);
-  const gradient = getRandomGradient();
   const navigate = useNavigate();
+
+  // Ensuring professional branding consistency 
+  const gradient = useMemo(() => gradients[Math.floor(Math.random() * gradients.length)], []);
 
   const handleDelete = async () => {
     setLoading(true);
-    console.log("Delete Resume with ID", resume._id);
     try {
-      const response = await deleteThisResume(resume._id);
+      await deleteThisResume(resume._id);
+      toast.success("Project archived successfully");
+      refreshData();
     } catch (error) {
-      console.error("Error deleting resume:", error.message);
-      toast(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
       setOpenAlert(false);
-      refreshData();
     }
   };
+
   return (
-    <div
-      className={`p-5 bg-gradient-to-r ${gradient} h-[380px] sm:h-auto rounded-lg flex flex-col justify-between shadow-lg transition duration-300 ease-in-out cursor-pointer hover:shadow-xl`}
+    <motion.div
+      whileHover={{ y: -5 }}
+      className={`group relative p-[2px] rounded-2xl bg-gradient-to-br ${gradient} shadow-lg hover:shadow-xl transition-all`}
     >
-      <div className="flex items-center justify-center p-6 bg-white rounded-t-lg shadow-md">
-        <h2
-          className={`text-center font-bold text-md mx-2 bg-clip-text text-transparent bg-gradient-to-r ${gradient}`}
-        >
-          {resume.title}
-        </h2>
-      </div>
-      <div className="flex items-center justify-around p-4 bg-white rounded-b-lg shadow-md">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(`/dashboard/view-resume/${resume._id}`)}
-          className="mx-2"
-        >
-          <FaEye className="text-gray-600 hover:text-indigo-600 transition duration-300 ease-in-out" />
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => navigate(`/dashboard/edit-resume/${resume._id}`)}
-          className="mx-2"
-        >
-          <FaEdit className="text-gray-600 hover:text-purple-600 transition duration-300 ease-in-out" />
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => setOpenAlert(true)}
-          className="mx-2"
-        >
-          <FaTrashAlt className="text-gray-600 hover:text-pink-600 transition duration-300 ease-in-out" />
-        </Button>
-        <AlertDialog open={openAlert} onClose={() => setOpenAlert(false)}>
-          <AlertDialogContent>
+      <div className="bg-white rounded-[14px] h-full flex flex-col justify-between overflow-hidden">
+        {/* Project Header [cite: 90] */}
+        <div className={`p-6 bg-gradient-to-r ${gradient} text-white`}>
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 bg-white/20 backdrop-blur-md rounded-lg">
+              <FaRobot className="text-xl text-white" />
+            </div>
+            {/* ATS Score Placeholder as per PRD Week 2  */}
+            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-md px-2 py-1 rounded text-xs font-bold">
+              <FaChartLine />
+              <span>ATS: 85%</span>
+            </div>
+          </div>
+          <h2 className="font-black text-lg line-clamp-1 uppercase tracking-tight">
+            {resume.title}
+          </h2>
+          <p className="text-xs text-white/70 font-medium mt-1 uppercase tracking-widest">
+            AI-MERN Hybrid Project
+          </p>
+        </div>
+
+        {/* Action Menu [cite: 95] */}
+        <div className="flex items-center justify-between p-4 bg-slate-50 border-t border-slate-100">
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/dashboard/view-resume/${resume._id}`)}
+              className="hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors"
+            >
+              <FaEye />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/dashboard/edit-resume/${resume._id}`)}
+              className="hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors"
+            >
+              <FaEdit />
+            </Button>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setOpenAlert(true)}
+            className="hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+          >
+            <FaTrashAlt />
+          </Button>
+        </div>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+          <AlertDialogContent className="rounded-2xl">
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>Archive this Architect project?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your
-                Resume and remove your data from our servers.
+                This will remove the data from our **Data + AI Memory** infrastructure. This action is permanent[cite: 36].
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setOpenAlert(false)}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={loading}>
-                {loading ? <FaSpinner className="animate-spin" /> : "Delete"}
+              <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete} 
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700 rounded-xl"
+              >
+                {loading ? <FaSpinner className="animate-spin" /> : "Confirm Delete"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

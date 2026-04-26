@@ -1,41 +1,47 @@
 import React from "react";
 
 function SkillsPreview({ resumeInfo }) {
+  const themeColor = resumeInfo?.themeColor || "#000000";
+
   return (
     <div className="my-6">
-      {resumeInfo?.skills.length > 0 && (
-        <div>
+      {/* Section Header */}
+      {resumeInfo?.skills?.length > 0 && (
+        <div className="mb-3">
           <h2
-            className="text-center font-bold text-sm mb-2"
-            style={{
-              color: resumeInfo?.themeColor,
-            }}
+            className="text-center font-black text-sm uppercase tracking-wider"
+            style={{ color: themeColor }}
           >
-            Skills
+            Technical Proficiency
           </h2>
           <hr
-            style={{
-              borderColor: resumeInfo?.themeColor,
-            }}
+            className="border-[1.5px] mt-1"
+            style={{ borderColor: themeColor }}
           />
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 my-4">
+      {/* Skills Grid */}
+      <div className="grid grid-cols-2 gap-x-10 gap-y-3 mt-4">
         {resumeInfo?.skills.map((skill, index) => (
           <div key={index} className="flex items-center justify-between">
-            <h2 className="text-xs">{skill.name}</h2>
-            {skill.name ? (
-              <div className="h-2 bg-gray-200 w-[50%]">
+            {/* Skill Name */}
+            <h2 className="text-[11px] font-bold text-slate-700 uppercase">
+              {skill.name}
+            </h2>
+
+            {/* Proficiency Bar: Professional Minimalist Style */}
+            {skill.name && (
+              <div className="h-1.5 bg-slate-100 w-24 rounded-full overflow-hidden">
                 <div
-                  className="h-2"
+                  className="h-full rounded-full transition-all duration-500"
                   style={{
-                    backgroundColor: resumeInfo.themeColor,
+                    backgroundColor: themeColor,
                     width: skill?.rating * 20 + "%",
                   }}
-                ></div>
+                />
               </div>
-            ) : null}
+            )}
           </div>
         ))}
       </div>

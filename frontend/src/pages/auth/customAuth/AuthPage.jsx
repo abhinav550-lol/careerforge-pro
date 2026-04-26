@@ -1,278 +1,197 @@
 import React, { useState } from "react";
-import {
-  FaUser,
-  FaLock,
-  FaSignInAlt,
-  FaUserPlus,
-  FaEye,
-  FaEyeSlash,
-} from "react-icons/fa";
-import { motion } from "framer-motion";
+import { 
+  User, 
+  Lock, 
+  LogIn, 
+  UserPlus, 
+  Eye, 
+  EyeOff, 
+  Rocket, 
+  Loader2,
+  Mail,
+  Sparkles
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { loginUser, registerUser } from "@/Services/login";
-import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [signUpError, setSignUpError] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [signInError, setSignInError] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignInSubmit = async (event) => {
-    setSignInError("");
+  const handleAuth = async (event) => {
+    setError("");
     event.preventDefault();
-    const { email, password } = event.target.elements;
+    const formData = new FormData(event.target);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const fullName = formData.get("fullname");
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.value)) {
-      setError("Please enter a valid email address.");
+    if (!emailPattern.test(email)) {
+      setError("Please enter a valid architectural email.");
       return;
     }
 
     setLoading(true);
-    const data = {
-      email: email.value,
-      password: password.value,
-    };
-
     try {
-      console.log("Login Started in Frontend");
-      const user = await loginUser(data);
-      console.log("Login Completed");
-
-      if (user?.statusCode === 200) {
-        navigate("/");
+      if (isSignUp) {
+        const response = await registerUser({ fullName, email, password });
+        if (response?.statusCode === 201) {
+          const loginRes = await loginUser({ email, password });
+          if (loginRes?.statusCode === 200) navigate("/dashboard");
+        }
+      } else {
+        const user = await loginUser({ email, password });
+        if (user?.statusCode === 200) navigate("/dashboard");
       }
-      console.log(user);
-    } catch (error) {
-      setSignInError(error.message);
-      console.log("Login Failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignUpSubmit = async (event) => {
-    setSignUpError("");
-    event.preventDefault();
-    const { fullname, email, password } = event.target.elements;
-
-    // Simple email validation
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.value)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    setLoading(true);
-    console.log("User Registration Started");
-    const data = {
-      fullName: fullname.value,
-      email: email.value,
-      password: password.value,
-    };
-    try {
-      const response = await registerUser(data);
-      if (response?.statusCode === 201) {
-        console.log("User Registration Started");
-        handleSignInSubmit(event);
-      }
-    } catch (error) {
-      console.log("User Registration Failed");
-      setSignUpError(error.message);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-r from-green-400 to-purple-500">
-      <motion.div
-        className="relative w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
-        initial={{ opacity: 0, y: -50 }}
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-slate-50 selection:bg-purple-100">
+      {/* Brand Identity */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        className="mb-8 text-center"
       >
-        <div className="flex justify-around mb-6 border-b border-gray-200">
-          <button
-            onClick={() => setIsSignUp(false)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors duration-300 rounded-t-lg ${
-              !isSignUp ? "bg-green-400 text-white" : "text-gray-600"
-            }`}
-          >
-            <FaSignInAlt />
-            Sign In
-          </button>
-          <button
-            onClick={() => setIsSignUp(true)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors duration-300 rounded-t-lg ${
-              isSignUp ? "bg-green-400 text-white" : "text-gray-600"
-            }`}
-          >
-            <FaUserPlus />
-            Sign Up
-          </button>
+        <div className="inline-flex items-center justify-center p-3 mb-4 rounded-2xl bg-slate-900 shadow-xl shadow-slate-200">
+          <Rocket className="text-white w-6 h-6" />
         </div>
-
-        <div className="relative overflow-hidden h-80">
-          {" "}
-          {/* Added height to ensure content is visible */}
-          <motion.div
-            className={`absolute inset-0 transition-transform duration-500 ${
-              isSignUp ? "translate-x-0" : "translate-x-full"
-            }`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isSignUp ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-center">Sign Up</h2>
-            <form onSubmit={handleSignUpSubmit} className="space-y-4">
-              <div className="flex items-center border rounded-md border-gray-300 p-2 gap-3">
-                <FaUser className="text-gray-400 mr-2" />
-                <input
-                  type="text"
-                  name="fullname"
-                  placeholder="Full Name"
-                  required
-                  className="outline-none w-full"
-                />
-              </div>
-              <div className="flex items-center border rounded-md border-gray-300 p-2 gap-3">
-                <FaUser className="text-gray-400 mr-2" />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  className="outline-none w-full"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
-                />
-              </div>
-              <div className="flex items-center border rounded-md border-gray-300 p-2 gap-3">
-                <FaLock className="text-gray-400 mr-2" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  required
-                  className="outline-none w-full"
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 ml-2"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-green-400 text-white py-2 rounded-md flex justify-center items-center"
-              >
-                {loading ? (
-                  <Loader2 className=" animate-spin text-center" />
-                ) : (
-                  "Register User"
-                )}
-              </button>
-              {signUpError && (
-                <div className="text-red-500 text-center mt-2">
-                  {signUpError}
-                </div>
-              )}
-            </form>
-          </motion.div>
-          <motion.div
-            className={`absolute inset-0 transition-transform duration-500 ${
-              isSignUp ? "-translate-x-full" : "translate-x-0"
-            }`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: !isSignUp ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-center">Sign In</h2>
-            <form onSubmit={handleSignInSubmit} className="space-y-4">
-              <div className="flex items-center border rounded-md border-gray-300 p-2 gap-3">
-                <FaUser className="text-gray-400 mr-2" />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  className="outline-none w-full"
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
-                />
-              </div>
-              <div className="flex items-center border rounded-md border-gray-300 p-2 gap-3">
-                <FaLock className="text-gray-400 mr-2" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Password"
-                  required
-                  className="outline-none w-full"
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 ml-2"
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-green-400 text-white py-2 rounded-md flex justify-center items-center"
-              >
-                {loading ? (
-                  <Loader2 className=" animate-spin text-center" />
-                ) : (
-                  "Login"
-                )}
-              </button>
-              {signInError && (
-                <div className="text-red-500 text-center mt-2">
-                  {signInError}
-                </div>
-              )}
-            </form>
-          </motion.div>
-        </div>
-
-        <p className="mt-4 text-center text-gray-600">
-          {isSignUp ? (
-            <>
-              Already have an account?{" "}
-              <button
-                onClick={() => setIsSignUp(false)}
-                className="text-blue-500 hover:underline"
-              >
-                Sign In
-              </button>
-            </>
-          ) : (
-            <>
-              Don’t have an account?{" "}
-              <button
-                onClick={() => setIsSignUp(true)}
-                className="text-blue-500 hover:underline"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
+        <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">
+          Career<span className="text-purple-600">Forge</span> Pro
+        </h1>
+        <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2">
+          AI-First Resume Engine
         </p>
       </motion.div>
+
+      <motion.div
+        className="w-full max-w-md p-8 bg-white rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        {/* Toggle Switch */}
+        <div className="flex p-1.5 mb-8 bg-slate-100 rounded-2xl">
+          <button
+            onClick={() => { setIsSignUp(false); setError(""); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-xl transition-all ${
+              !isSignUp ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <LogIn className="w-4 h-4" /> Sign In
+          </button>
+          <button
+            onClick={() => { setIsSignUp(true); setError(""); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-xl transition-all ${
+              isSignUp ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <UserPlus className="w-4 h-4" /> Sign Up
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isSignUp ? "signup" : "signin"}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="mb-6">
+               <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                {isSignUp ? "Create Architect Account" : "Welcome Back"}
+              </h2>
+              <p className="text-slate-500 text-sm font-medium">
+                {isSignUp ? "Join the squadron of elite developers." : "Access your professional dashboard."}
+              </p>
+            </div>
+            
+            <form onSubmit={handleAuth} className="space-y-4">
+              {isSignUp && (
+                <div className="relative">
+                  <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                  <input
+                    type="text"
+                    name="fullname"
+                    placeholder="Full Name"
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/5 transition-all font-medium"
+                  />
+                </div>
+              )}
+              
+              <div className="relative">
+                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Architect Email"
+                  required
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/5 transition-all font-medium"
+                />
+              </div>
+
+              <div className="relative">
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Secure Password"
+                  required
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-purple-400 focus:ring-4 focus:ring-purple-500/5 transition-all font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-xl shadow-slate-200 hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center gap-2 group"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin w-5 h-5" />
+                ) : (
+                  <>
+                    {isSignUp ? "Generate Account" : "Enter Platform"}
+                    <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                  </>
+                )}
+              </button>
+            </form>
+          </motion.div>
+        </AnimatePresence>
+
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }}
+            className="mt-6 p-4 bg-red-50 text-red-600 text-xs font-bold rounded-2xl border border-red-100 flex items-center justify-center gap-2"
+          >
+            <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
+            {error}
+          </motion.div>
+        )}
+      </motion.div>
+      
+      <p className="mt-8 text-slate-400 text-xs font-bold uppercase tracking-tighter">
+        Secure Handshake via Gemini 3 Infrastructure
+      </p>
     </div>
   );
 }

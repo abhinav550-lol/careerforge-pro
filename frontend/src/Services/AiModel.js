@@ -1,26 +1,17 @@
-import { Gem } from "lucide-react";
-import { GEMENI_API_KEY } from "../config/config";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// USE THIS INSTEAD
+import axios from 'axios';
 
-
-const apiKey = GEMENI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-3-flash-preview",
-});
-
-const generationConfig = {
-  temperature: 1,
-  topP: 0.95,
-  topK: 64,
-  maxOutputTokens: 8192,
-  responseMimeType: "application/json",
+const handleGenerateAI = async () => {
+  setLoading(true);
+  try {
+    const result = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/ai/generate-content`, {
+      prompt: "Write a professional summary for...", // Your specific prompt
+      type: 'summary' // or 'experience'
+    });
+    setSummary(result.data.content);
+  } catch (error) {
+    console.error("AI Generation failed");
+  } finally {
+    setLoading(false);
+  }
 };
-
-export const AIChatSession = model.startChat({
-  generationConfig,
-  // safetySettings: Adjust safety settings
-  // See https://ai.google.dev/gemini-api/docs/safety-settings
-  history: [],
-});

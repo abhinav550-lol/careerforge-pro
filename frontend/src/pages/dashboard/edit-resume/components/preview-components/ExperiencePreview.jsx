@@ -1,61 +1,60 @@
 import React from "react";
 
 function ExperiencePreview({ resumeInfo }) {
+  const themeColor = resumeInfo?.themeColor || "#000000";
+
   return (
     <div className="my-6">
-      {resumeInfo?.experience.length > 0 && (
-        <div>
+      {/* Section Header */}
+      {resumeInfo?.experience?.length > 0 && (
+        <div className="mb-3">
           <h2
-            className="text-center font-bold text-sm mb-2"
-            style={{
-              color: resumeInfo?.themeColor,
-            }}
+            className="text-center font-black text-sm uppercase tracking-wider"
+            style={{ color: themeColor }}
           >
             Professional Experience
           </h2>
           <hr
-            style={{
-              borderColor: resumeInfo?.themeColor,
-            }}
+            className="border-[1.5px] mt-1"
+            style={{ borderColor: themeColor }}
           />
         </div>
       )}
 
-      {resumeInfo?.experience?.map((experience, index) => (
-        <div key={index} className="my-5">
-          <h2
-            className="text-sm font-bold"
-            style={{
-              color: resumeInfo?.themeColor,
-            }}
-          >
-            {experience?.title}
-          </h2>
-          <h2 className="text-xs flex justify-between">
-            {experience?.companyName}
-            {experience?.companyName && experience?.city ? ", " : null}
-            {experience?.city}
-            {experience?.city && experience?.state ? ", " : null}
-            {experience?.state}
-            <span>
-              {experience?.startDate}{" "}
-              {experience?.startDate && experience?.currentlyWorking
-                ? "Present"
-                : experience.endDate
-                ? "To"
-                : null}{" "}
-              {experience?.currentlyWorking ? "Present" : experience.endDate}{" "}
-            </span>
-          </h2>
-          {/* <p className='text-xs my-2'>
-                    {experience.workSummery}
-                </p> */}
-          <div
-            className="text-xs my-2"
-            dangerouslySetInnerHTML={{ __html: experience?.workSummary }}
-          />
-        </div>
-      ))}
+      {/* Experience List */}
+      <div className="space-y-4">
+        {resumeInfo?.experience?.map((experience, index) => (
+          <div key={index} className="leading-relaxed">
+            <div className="flex justify-between items-baseline">
+              <h3
+                className="text-sm font-bold uppercase"
+                style={{ color: themeColor }}
+              >
+                {experience?.title}
+              </h3>
+              <span className="text-[11px] font-semibold text-slate-700">
+                {experience?.startDate} 
+                {experience?.startDate ? " — " : ""} 
+                {experience?.currentlyWorking ? "Present" : experience?.endDate}
+              </span>
+            </div>
+
+            <div className="text-[11px] font-medium text-slate-600 italic">
+              {experience?.companyName}
+              {experience?.companyName && (experience?.city || experience?.state) ? ", " : ""}
+              {experience?.city}
+              {experience?.city && experience?.state ? ", " : ""}
+              {experience?.state}
+            </div>
+
+            {/* AI-Generated Work Summary (Rich Text) */}
+            <div
+              className="text-[11px] mt-2 text-slate-700 preview-rich-text leading-snug"
+              dangerouslySetInnerHTML={{ __html: experience?.workSummary }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

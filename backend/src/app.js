@@ -21,5 +21,7 @@ app.use(cors(corsOptions));
 
 app.use("/api/users", userRouter);
 app.use("/api/resumes", resumeRouter);
+app.use('/api', resumeRouter)
+
 
 export default app;

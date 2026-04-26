@@ -105,3 +105,26 @@
   list-style: decimal;
   padding-left: 2em;
 }
+
+@media print {
+  /* Hide everything except the resume container */
+  body * {
+    visibility: hidden;
+  }
+  #pdf-content, #pdf-content * {
+    visibility: visible;
+  }
+  #pdf-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Remove browser headers/footers */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}

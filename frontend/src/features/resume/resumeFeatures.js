@@ -1,7 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
 const initialState = {
-  resumeData:""
+  resumeData: {
+    // ... other fields
+    templateId: 'modern', // Default template
+    themeColor: '#7c3aed'
+  }
 };
 export const resumeSlice = createSlice({
   name: "editResume",
