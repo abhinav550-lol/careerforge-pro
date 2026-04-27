@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { Plus, Loader2, Sparkles, Wand2, PlusCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ function AddResume() {
     const data = {
       data: {
         title: resumetitle,
-        themeColor: "#9333ea", // CareerForge Brand Purple
+        themeColor: "#9333ea", 
       },
     };
 
@@ -44,71 +44,78 @@ function AddResume() {
 
   return (
     <>
-      {/* 1. UNIVERSAL ADD CARD */}
-      <motion.div
-        whileHover={{ y: -5, scale: 1.01 }}
-        whileTap={{ scale: 0.98 }}
-        className="p-10 py-20 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 bg-white rounded-[2.5rem] h-[380px] cursor-pointer hover:border-purple-600 hover:bg-purple-50/30 transition-all group shadow-sm"
+      {/* 1. UPDATED PREMIUM BUTTON (Matches Optimize Button) */}
+      <Button 
         onClick={() => setOpenDialog(true)}
+        className="h-28 px-8 rounded-2xl bg-slate-900 text-white hover:bg-purple-600 font-black uppercase text-[10px] tracking-widest flex gap-3 transition-all shadow-xl shadow-slate-200 group active:scale-95"
       >
-        <div className="bg-slate-50 p-6 rounded-full group-hover:bg-purple-600 group-hover:rotate-90 transition-all duration-300 shadow-sm">
-          <Plus className="text-slate-400 group-hover:text-white transition-colors w-8 h-8" />
-        </div>
-        <p className="mt-6 font-black uppercase text-xs tracking-[0.2em] text-slate-400 group-hover:text-purple-600 transition-colors">
-          Create New Profile
-        </p>
-      </motion.div>
+        <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+        Create New Resume
+      </Button>
 
-      {/* 2. CREATION DIALOG */}
+      {/* 2. OPTIONAL: Keep the Grid Card as well (if you want both) */}
+      {/* If you only want the button, you can remove the motion.div below */}
+      {/* <motion.div
+        whileHover={{ y: -5 }}
+        onClick={() => setOpenDialog(true)}
+        className="hidden lg:flex p-10 flex-col items-center justify-center border-2 border-dashed border-slate-200 bg-white rounded-[2.5rem] h-[380px] cursor-pointer hover:border-purple-600 hover:bg-purple-50/30 transition-all group"
+      >
+        <Plus className="text-slate-300 group-hover:text-purple-600 w-10 h-10 transition-colors" />
+      </motion.div> 
+      */}
+
+      {/* 3. CREATION DIALOG */}
       <Dialog open={isDialogOpen} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] p-10 border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] bg-white">
+        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem] p-10 border-none shadow-2xl bg-white">
           <DialogHeader>
-            <div className="flex items-center gap-2 mb-1">
-              <Wand2 className="text-purple-600 w-5 h-5" />
-              <DialogTitle className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
-                Start Your <span className="text-purple-600">Profile</span>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-purple-600 rounded-xl">
+                <Wand2 className="text-white w-5 h-5" />
+              </div>
+              <DialogTitle className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none pt-1">
+                New <span className="text-purple-600">Architecture</span>
               </DialogTitle>
             </div>
-            <DialogDescription className="text-slate-500 font-medium text-sm leading-relaxed">
-              Give your professional resume a title. Our **Smart Assistant** will help you optimize it for your next big role.
+            <DialogDescription className="text-slate-500 font-medium text-xs uppercase tracking-widest leading-relaxed">
+              Define the title of your next professional milestone.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-6">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-2 block">
-              Resume Title
+          <div className="py-8">
+            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1 mb-3 block">
+              Resume Title / Role Name
             </label>
             <Input
               id="title"
-              placeholder="Ex: Marketing Manager or Staff Nurse"
-              className="h-12 rounded-2xl border-none bg-slate-50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 transition-all font-bold text-slate-700"
+              placeholder="Ex: Senior Full Stack Developer"
+              className="h-14 rounded-2xl border-none bg-slate-50 focus:bg-white focus:ring-8 focus:ring-purple-600/5 transition-all font-bold text-slate-700"
               value={resumetitle}
               onChange={(e) => setResumetitle(e.target.value)}
               autoFocus
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <Button 
-              variant="ghost" 
-              className="rounded-2xl h-12 px-6 font-bold text-slate-400 hover:text-slate-600"
-              onClick={() => setOpenDialog(false)}
-            >
-              Cancel
-            </Button>
+          <div className="flex flex-col gap-3">
             <Button 
               onClick={createResume} 
               disabled={!resumetitle.trim() || loading}
-              className="rounded-2xl bg-slate-900 text-white hover:bg-purple-600 h-12 px-8 font-black uppercase text-[10px] tracking-widest shadow-xl shadow-slate-100 transition-all flex items-center gap-2"
+              className="w-full h-14 rounded-2xl bg-slate-900 text-white hover:bg-purple-600  font-black uppercase text-xs tracking-[0.2em] shadow-xl transition-all flex items-center justify-center gap-3"
             >
               {loading ? (
-                <Loader2 className="animate-spin w-4 h-4" />
+                <Loader2 className="animate-spin w-5 h-5" />
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-purple-400" />
-                  Begin Journey
+                  Initialize Studio
                 </>
               )}
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full rounded-2xl h-12 font-bold text-slate-400 hover:text-slate-600 text-[10px] uppercase tracking-widest"
+              onClick={() => setOpenDialog(false)}
+            >
+              Discard
             </Button>
           </div>
         </DialogContent>

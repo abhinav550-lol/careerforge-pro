@@ -25,7 +25,7 @@ function PreviewPage() {
     <div className="relative min-h-screen bg-[#F8FAFC] p-4 md:p-10 flex flex-col items-center selection:bg-purple-100">
       
       {/* 1. FUNCTIONAL AI STATUS BADGE (Non-Printing) */}
-      <div id="noPrint" className="fixed top-28 right-8 z-50 hidden xl:block">
+      <div id="noPrint" className="fixed top-50 right-8 z-50 hidden xl:block">
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}

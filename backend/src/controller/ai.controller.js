@@ -13,18 +13,28 @@ export const analyzeJobDescription = async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `
-      You are an expert Career Coach and ATS Analyst. 
-      Compare this Resume with the Job Description.
+      System: Act as an elite Executive Recruiter and ATS Optimization Expert.
       
-      Resume Data: ${JSON.stringify(resumeData)}
-      Job Description: ${jobDescription}
+      Task: Conduct a high-fidelity audit of the provided Resume against the specific Job Description. 
+      Focus on semantic matching, keyword density, and professional impact.
 
-      Return ONLY a JSON object (no markdown, no backticks) with:
+      Data Input:
+      - Resume Content: ${JSON.stringify(resumeData)}
+      - Target Role: ${jobDescription}
+
+      Analysis Constraints:
+      1. matchPercentage: Provide a realistic score (0-100) based on core requirements vs. resume evidence.
+      2. missingSkills: Identify the top 5 high-priority technical or soft skills found in the JD but missing from the resume.
+      3. analysis: Provide a 2-sentence executive summary of the "Smart Match" compatibility.
+      4. suggestions: Provide 3 actionable, high-impact improvements. Focus on adding quantifiable metrics (e.g., "Increased X by Y%") and keyword optimization.
+
+      Output Format:
+      Return ONLY a raw JSON object. No markdown formatting, no backticks, no preamble.
       {
         "matchPercentage": number,
-        "missingSkills": ["skill1", "skill2"],
+        "missingSkills": [],
         "analysis": "string",
-        "suggestions": ["improvement1", "improvement2"]
+        "suggestions": []
       }
     `;
 
