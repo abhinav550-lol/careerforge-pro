@@ -64,7 +64,9 @@ npm run dev
 
 👨‍💻 Developed By
 Pratik Suthar Full Stack Developer & UI/UX Designer Built for the 2026 Modern Web Standards.
-
+Abhinav Mishra - Full Stack Developer
+Sujata - Full Stack Developer
+Niharika - Full Stack Developer 
 
 ### Why this is better:
 1.  **Direct Value:** It clearly explains that the project beats **ATS algorithms**, which is the biggest pain point for job seekers.
