@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://maabhinav550_db_user:YEGqjsHUNkfLcy9B@cluster0.veiwkcs.mongodb.net/?appName=Cluster0", {
       dbName: "career",
     });
 
