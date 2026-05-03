@@ -1,84 +1,114 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Loader2, 
-  Plus, 
-  Trash2, 
-  Briefcase, 
-  Link as LinkIcon, 
-  Sparkles,
-  Zap,
-  Save
-} from "lucide-react";
-import { useDispatch } from "react-redux";
-import { addResumeData } from "@/features/resume/resumeFeatures";
-import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { BrainCircuit, Loader2, Plus, Trash2, FolderGit2, Save, Wrench } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom"; // ADDED: For DB Save
+import { addResumeData } from "@/features/resume/resumeFeatures";
+import { updateThisResume } from "@/Services/resumeAPI"; // ADDED: For DB Save
+import { motion, AnimatePresence } from "framer-motion";
 
-const initialState = {
-  projectName: '',
-  technologies: '',
-  link: '',
-  description: ''
+const initialProject = {
+  title: "",
+  link: "",
+  tools: "",
+  description: "" 
 };
 
-function Project({ resumeInfo }) {
-  const [projectList, setProjectList] = useState([initialState]);
+const TECH_STACK_DB = [
+  "React", "Node.js", "MongoDB", "Express", "Tailwind CSS", "JavaScript", 
+  "TypeScript", "Python", "AWS", "Docker", "Git", "Next.js", "PostgreSQL", 
+  "MySQL", "Firebase", "Redux", "Framer Motion", "GraphQL"
+];
+
+function Projects({ resumeInfo }) {
+  const { resume_id } = useParams(); // Extract ID
   const [loading, setLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // ADDED: Save state
+  const [projectList, setProjectList] = useState([initialProject]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(null);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const dispatch = useDispatch();
 
-  // Initialize and Sync with Redux
   useEffect(() => {
     if (resumeInfo?.projects?.length > 0) {
       setProjectList(resumeInfo.projects);
     }
   }, [resumeInfo]);
 
-  const handleChange = (index, event) => {
-    const { name, value } = event.target;
-    const newEntries = [...projectList];
-    newEntries[index] = { ...newEntries[index], [name]: value };
-    setProjectList(newEntries);
+  const handleToolInput = (index, value) => {
+    handleChange(index, { target: { name: "tools", value } });
+    const currentTools = value.split(",");
+    const lastWord = currentTools[currentTools.length - 1].trim().toLowerCase();
+
+    if (lastWord.length > 0) {
+      const matches = TECH_STACK_DB.filter(tech => 
+        tech.toLowerCase().includes(lastWord) && !value.toLowerCase().includes(tech.toLowerCase())
+      );
+      setFilteredSuggestions(matches);
+      setActiveSuggestionIndex(matches.length > 0 ? index : null);
+    } else {
+      setActiveSuggestionIndex(null);
+    }
+  };
+
+  const applySuggestion = (index, suggestion) => {
+    const currentTools = projectList[index].tools.split(",");
+    currentTools.pop(); 
+    const newToolString = [...currentTools, suggestion].filter(t => t.trim() !== "").join(", ") + ", ";
     
-    // LIVE SYNC: Dispatch to Redux immediately for real-time visualization
-    dispatch(addResumeData({
-      ...resumeInfo,
-      projects: newEntries
-    }));
+    handleChange(index, { target: { name: "tools", value: newToolString } });
+    setActiveSuggestionIndex(null); 
   };
 
   const handleGenerateAI = async (index) => {
-    const name = projectList[index]?.projectName;
-    if (!name) return toast.error("Please enter a Project Name first!");
+    const title = projectList[index]?.title;
+    if (!title) return toast.error("Enter a Project Title first!");
 
-    setAiLoading(true);
+    setLoading(true);
     try {
-      const baseUrl = (import.meta.env.VITE_APP_URL || "http://localhost:5001").replace(/\/+$/, "");
-      const response = await axios.post(`${baseUrl}/api/ai/generate-content`, {
-        prompt: `Generate 3 high-impact achievement bullet points for a project titled "${name}". Focus on measurable results and specific professional contributions.`,
-        type: 'experience'
-      });
+      const rawUrl = import.meta.env.VITE_APP_URL || "http://localhost:5001";
+      const baseUrl = rawUrl.replace(/\/+$/, "");
 
-      const aiContent = response.data.content;
+      const response = await axios.post(`${baseUrl}/api/ai/generate-content`, {
+        context: `Generate 3 high-impact bullet points describing a software project named ${title}. Focus on problem-solving, architecture, and impact. Do not use asterisks. Separate each point with a new line.`,
+        promptType: 'experience' 
+      }, { withCredentials: true });
+
+      let aiContent = response.data.data.content; 
+      
+      if (typeof aiContent === "string") {
+        let cleanText = aiContent.replace(/\*\*/g, ""); 
+        const bulletArray = cleanText.split(/\n|\* | - /).map(line => line.trim()).filter(line => line.length > 5);
+        aiContent = bulletArray.map(line => `• ${line}`).join("\n\n");
+      }
+
       const newEntries = [...projectList];
       newEntries[index] = { ...newEntries[index], description: aiContent };
       
       setProjectList(newEntries);
       dispatch(addResumeData({ ...resumeInfo, projects: newEntries }));
-      toast.success("AI has refined your project impact!");
+      toast.success("Project Impact Synchronized!");
     } catch (error) {
-      toast.error("AI service is currently busy.");
+      toast.error(error?.response?.data?.message || "AI service is busy.");
     } finally {
-      setAiLoading(false);
+      setLoading(false);
     }
   };
 
+  const handleChange = (index, event) => {
+    const { name, value } = event.target;
+    const newEntries = [...projectList];
+    newEntries[index] = { ...newEntries[index], [name]: value };
+    setProjectList(newEntries);
+    dispatch(addResumeData({ ...resumeInfo, projects: newEntries }));
+  };
+
   const addNewProject = () => {
-    const newList = [...projectList, { ...initialState }];
+    const newList = [...projectList, initialProject];
     setProjectList(newList);
     dispatch(addResumeData({ ...resumeInfo, projects: newList }));
   };
@@ -89,147 +119,117 @@ function Project({ resumeInfo }) {
     dispatch(addResumeData({ ...resumeInfo, projects: newEntries }));
   };
 
-  const onSave = () => {
-    setLoading(true);
-    // Simulate API Sync
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Project milestones synchronized!");
-    }, 800);
+  // --- THE NEW WORKING SAVE LOGIC ---
+  const onSave = async () => {
+    setIsSaving(true);
+    try {
+      const updatedResume = { ...resumeInfo, projects: projectList };
+      dispatch(addResumeData(updatedResume));
+      
+      const result = await updateThisResume(resume_id, updatedResume);
+      
+      if (result && (result.success || result.statusCode === 200)) {
+        toast.success(result.message || "Projects synchronized with database!");
+      }
+    } catch (error) {
+      console.error("Save Error:", error);
+      toast.error(error?.message || "Failed to save projects.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="p-4 md:p-8 bg-white rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 shadow-xl mt-10 relative">
-      {/* 1. HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-2.5 bg-purple-600 rounded-2xl shadow-lg shadow-purple-100 shrink-0">
-          <Briefcase className="text-white w-5 h-5 md:w-6 md:h-6" />
+    <div className="p-4 md:p-8 bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-xl mt-6 md:mt-10 relative">
+      <div className="flex items-center gap-3 mb-6 md:mb-8">
+        <div className="p-2 bg-purple-600 rounded-xl shrink-0">
+          <FolderGit2 className="text-white w-4 h-4 md:w-5 md:h-5" />
         </div>
         <div>
-          <h2 className="font-black text-xl md:text-2xl text-slate-900 uppercase tracking-tighter leading-none">
-            Key <span className="text-purple-600">Showcase</span>
+          <h2 className="font-black text-lg md:text-2xl text-slate-900 uppercase tracking-tighter leading-none">
+            Technical <span className="text-purple-600">Projects</span>
           </h2>
-          <p className="hidden md:block text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-1.5 opacity-60">
-            Highlight your best work, campaigns, or initiatives
-          </p>
         </div>
       </div>
 
-      {/* 2. PROJECT LIST */}
-      <div className="space-y-6">
-        <AnimatePresence>
-          {projectList.map((item, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="p-6 md:p-8 rounded-[2rem] bg-slate-50/50 border border-slate-100 relative group hover:bg-white hover:border-purple-200 transition-all"
-            >
-              {projectList.length > 1 && (
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                  onClick={() => removeProject(index)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              )}
+      <AnimatePresence>
+        {projectList.map((item, index) => (
+          <motion.div key={index} className="p-4 md:p-8 rounded-[1.2rem] md:rounded-[2rem] bg-slate-50/50 border border-slate-100 mb-6 relative group">
+            {projectList.length > 1 && (
+              <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl" onClick={() => removeProject(index)}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Project or Initiative Name</label>
-                  <Input 
-                    name="projectName" 
-                    value={item.projectName || ''}
-                    placeholder="Ex: Community Outreach Program"
-                    onChange={(e) => handleChange(index, e)}
-                    className="h-11 md:h-12 rounded-xl border-slate-100 bg-white focus:ring-8 focus:ring-purple-600/5 transition-all font-bold text-slate-700"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Evidence / Portfolio Link</label>
-                  <div className="relative">
-                    <Input 
-                      name="link" 
-                      value={item.link || ''}
-                      placeholder="https://portfolio.com/project"
-                      onChange={(e) => handleChange(index, e)}
-                      className="h-11 md:h-12 rounded-xl border-slate-100 bg-white pl-10 focus:ring-8 focus:ring-purple-600/5 transition-all text-xs"
-                    />
-                    <LinkIcon className="absolute left-3.5 top-3.5 md:top-4 w-4 h-4 text-slate-300" />
-                  </div>
-                </div>
-
-                <div className="col-span-full space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Core Skills & Tools Applied</label>
-                  <div className="relative">
-                    <Input 
-                      name="technologies" 
-                      value={item.technologies || ''}
-                      placeholder="Ex: Strategic Planning, Team Leadership, Budget Management"
-                      onChange={(e) => handleChange(index, e)}
-                      className="h-11 md:h-12 rounded-xl border-slate-100 bg-white pl-10 focus:ring-8 focus:ring-purple-600/5 transition-all text-purple-600 font-bold"
-                    />
-                    <Zap className="absolute left-3.5 top-3.5 md:top-4 w-4 h-4 text-purple-400" />
-                  </div>
-                </div>
-
-                <div className="col-span-full space-y-2">
-                  <div className="flex justify-between items-center px-1">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Impact & Role</label>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleGenerateAI(index)}
-                      disabled={aiLoading}
-                      className="text-purple-600 font-bold hover:bg-purple-50 flex gap-2 rounded-lg h-7 px-2"
-                    >
-                      {aiLoading ? <Loader2 className="animate-spin w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
-                      <span className="text-[9px] uppercase tracking-tighter">AI Refine</span>
-                    </Button>
-                  </div>
-                  <Textarea 
-                    name="description" 
-                    value={item.description || ''}
-                    placeholder="Briefly describe the goal and the measurable impact you achieved..."
-                    onChange={(e) => handleChange(index, e)}
-                    className="rounded-2xl border-slate-100 bg-white min-h-[100px] p-4 focus:ring-8 focus:ring-purple-600/5 transition-all text-sm leading-relaxed"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Project Name</label>
+                <Input name="title" placeholder="Ex: CareerForge AI" value={item.title} onChange={(e) => handleChange(index, e)} className="h-10 md:h-12 rounded-xl bg-white font-bold" />
               </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Live URL / GitHub</label>
+                <Input name="link" placeholder="Ex: github.com/pratik/project" value={item.link} onChange={(e) => handleChange(index, e)} className="h-10 md:h-12 rounded-xl bg-white font-bold" />
+              </div>
 
-      {/* 3. FOOTER CONTROLS - RESPONSIVE */}
-      <div className="mt-8 pt-6 border-t border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <Button 
-          variant="outline" 
-          onClick={addNewProject}
-          className="w-full sm:w-auto h-12 rounded-2xl border-slate-100 bg-white text-slate-500 hover:bg-slate-50 font-bold px-8 flex items-center gap-2 text-xs"
-        >
-          <Plus className="w-4 h-4" /> Add Showcase
+              <div className="col-span-full space-y-2 relative">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-1">
+                  <Wrench className="w-3 h-3" /> Tools & Technologies
+                </label>
+                <Input 
+                  name="tools" 
+                  autoComplete="off"
+                  placeholder="Ex: React, Node.js, Tailwind..." 
+                  value={item.tools} 
+                  onChange={(e) => handleToolInput(index, e.target.value)} 
+                  onBlur={() => setTimeout(() => setActiveSuggestionIndex(null), 200)} 
+                  className="h-10 md:h-12 rounded-xl bg-white font-bold" 
+                />
+                
+                {activeSuggestionIndex === index && filteredSuggestions.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-2xl p-2 flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, i) => (
+                      <div 
+                        key={i} 
+                        onClick={() => applySuggestion(index, suggestion)}
+                        className="px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-bold rounded-lg cursor-pointer hover:bg-purple-600 hover:text-white transition-colors"
+                      >
+                        + {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="col-span-full space-y-2 mt-2">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Impact & Description</label>
+                  <Button variant="ghost" size="sm" onClick={() => handleGenerateAI(index)} disabled={loading} className="text-purple-600 font-bold hover:bg-purple-50 flex gap-2 rounded-lg h-7 px-2">
+                    {loading ? <Loader2 className="animate-spin w-3 h-3" /> : <BrainCircuit className="w-3 h-3" />}
+                    <span className="text-[9px] uppercase tracking-tighter">AI Refine</span>
+                  </Button>
+                </div>
+                <Textarea name="description" value={item.description} placeholder="Describe the architecture and impact..." onChange={(e) => handleChange(index, e)} className="rounded-2xl border-slate-100 bg-white min-h-[120px] p-4 text-sm leading-relaxed whitespace-pre-wrap" />
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
+      <div className="mt-6 pt-6 border-t border-slate-50 flex justify-between gap-4">
+        <Button variant="outline" onClick={addNewProject} className="h-12 rounded-2xl font-bold text-slate-600">
+          <Plus className="w-4 h-4 mr-2" /> Add Project
         </Button>
-
         <Button 
-          disabled={loading} 
-          onClick={onSave}
-          className="w-full sm:w-auto h-14 rounded-2xl bg-slate-900 hover:bg-purple-600 text-white px-12 font-black uppercase text-[10px] tracking-[0.2em] shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3"
+          onClick={onSave} 
+          disabled={isSaving}
+          className="h-12 rounded-2xl bg-slate-900 text-white px-10 font-black uppercase text-[10px] tracking-[0.2em] shadow-xl disabled:opacity-70 flex items-center justify-center gap-2"
         >
-          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (
-            <>
-              <Save className="w-4 h-4" />
-              Save
-            </>
-          )}
+          {isSaving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+          {isSaving ? "Saving..." : "Save"}
         </Button>
       </div>
     </div>
   );
 }
 
-export default Project;
+export default Projects;

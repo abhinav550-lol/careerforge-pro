@@ -1,34 +1,59 @@
 import React, { useEffect, useState } from "react";
 import ResumeForm from "../components/ResumeForm";
 import PreviewPage from "../components/PreviewPage";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getResumeData } from "@/Services/resumeAPI";
 import { useDispatch } from "react-redux";
 import { addResumeData } from "@/features/resume/resumeFeatures";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Sparkles, ChevronLeft, Layout, ShieldCheck, Zap, Briefcase } from "lucide-react";
 
 export function EditResume() {
   const { resume_id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    if (!resume_id) {
+      setIsInitializing(false);
+      return;
+    }
+
     getResumeData(resume_id)
-      .then((data) => {
-        dispatch(addResumeData(data.data));
+      .then((response) => {
+        const payload = response?.data?.data ? response.data.data : response?.data || response;
+        if (payload && Object.keys(payload).length > 0) {
+          dispatch(addResumeData(payload));
+        } else {
+          toast.error("Failed to load resume data.");
+        }
       })
-      .finally(() => setIsInitializing(false));
-  }, [resume_id, dispatch]);
+      .catch((error) => {
+        toast.error("Profile sync failed. Returning to dashboard.");
+        navigate("/dashboard");
+      })
+      .finally(() => {
+        setIsInitializing(false);
+      });
+  }, [resume_id, dispatch, navigate]);
+
+  const handleGlobalOptimize = () => {
+    // 1. Scroll user to the AI panel[cite: 14]
+    const panel = document.getElementById('ai-forge-panel');
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // 2. Dispatch a custom event for the ResumeForm to catch[cite: 14]
+    const event = new CustomEvent('trigger-ai-optimization');
+    window.dispatchEvent(event);
+  };
 
   if (isInitializing) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-[#F8FAFC]">
         <motion.div 
-          animate={{ 
-            rotate: [0, 360],
-            scale: [1, 1.1, 1],
-          }}
+          animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
           transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
           className="relative"
         >
@@ -46,15 +71,10 @@ export function EditResume() {
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen selection:bg-purple-100">
-      
-      {/* 1. PREMIUM STUDIO HEADER */}
       <header className="sticky top-0 z-[100] px-8 py-4 bg-white/80 backdrop-blur-xl border-b border-slate-100 flex justify-between items-center">
         <div className="flex items-center gap-6">
           <Link to="/dashboard">
-            <motion.button 
-              whileHover={{ x: -4 }}
-              className="p-2.5 hover:bg-slate-50 rounded-2xl transition-all group border border-transparent hover:border-slate-100"
-            >
+            <motion.button whileHover={{ x: -4 }} className="p-2.5 hover:bg-slate-50 rounded-2xl transition-all group border border-transparent hover:border-slate-100">
               <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-slate-900" />
             </motion.button>
           </Link>
@@ -66,12 +86,6 @@ export function EditResume() {
               </div>
               Success <span className="text-purple-600">Studio</span>
             </h2>
-            <div className="flex items-center gap-2 mt-1.5 ml-0.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                AI Optimization Active // Ready for Deployment
-              </p>
-            </div>
           </div>
         </div>
         
@@ -80,8 +94,10 @@ export function EditResume() {
              <ShieldCheck className="w-4 h-4 text-purple-600" />
              <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Professional Grade Verified</span>
           </div>
+          
           <motion.button 
             whileTap={{ scale: 0.95 }}
+            onClick={handleGlobalOptimize}
             className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl shadow-slate-200 hover:bg-purple-600 transition-all flex items-center gap-2"
           >
             <Zap className="w-4 h-4" />
@@ -90,17 +106,13 @@ export function EditResume() {
         </div>
       </header>
 
-      {/* 2. DUAL-PANE WORKSPACE */}
       <main className="grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden">
-        
-        {/* LEFT: Builder Core */}
         <section className="h-[calc(100vh-81px)] overflow-y-auto bg-white lg:border-r border-slate-100 scroll-smooth custom-scrollbar">
           <div className="max-w-3xl mx-auto p-10 lg:p-16">
             <ResumeForm />
           </div>
         </section>
 
-        {/* RIGHT: Live Preview Canvas */}
         <section className="hidden lg:block h-[calc(100vh-81px)] overflow-y-auto bg-slate-50/50 p-12 scroll-smooth custom-scrollbar">
           <div className="sticky top-0">
             <div className="flex items-center gap-3 mb-8 ml-2">
@@ -108,13 +120,7 @@ export function EditResume() {
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Live Success Preview</span>
                 <div className="flex-1 h-[1px] bg-slate-200/50" />
             </div>
-            
-            {/* Floating A4 Document Frame */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] border border-slate-200/50 overflow-hidden bg-white mx-auto scale-[0.98] hover:scale-100 transition-transform duration-700"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] border border-slate-200/50 overflow-hidden bg-white mx-auto scale-[0.98]">
               <div className="overflow-auto bg-white">
                 <PreviewPage />
               </div>
@@ -125,5 +131,3 @@ export function EditResume() {
     </div>
   );
 }
-
-export default EditResume;

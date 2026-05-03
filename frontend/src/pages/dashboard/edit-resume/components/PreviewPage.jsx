@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import ModernTemplate from './templates/ModernTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
@@ -15,11 +15,20 @@ function PreviewPage() {
   const atsScore = useMemo(() => {
     return resumeInfo?.atsScore || 0; // Defaults to 0 if not yet analyzed
   }, [resumeInfo?.atsScore]);
-
   // Calculation for the SVG radial progress
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (atsScore / 100) * circumference;
+  // Add this inside PreviewPage to signal your backend controller
+useEffect(() => {
+  if (resumeInfo) {
+    // Small delay to ensure Framer Motion animations complete
+    const timer = setTimeout(() => {
+      window.resumeReady = true;
+    }, 1000);
+    return () => clearTimeout(timer);
+  }
+}, [resumeInfo]);
 
   return (
     <div className="relative min-h-screen bg-[#F8FAFC] p-4 md:p-10 flex flex-col items-center selection:bg-purple-100">

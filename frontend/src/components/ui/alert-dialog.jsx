@@ -13,7 +13,6 @@ const AlertDialogPortal = AlertDialogPrimitive.Portal
 const AlertDialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      // Updated: Added backdrop-blur for a premium "Glass" look
       "fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
@@ -28,7 +27,6 @@ const AlertDialogContent = React.forwardRef(({ className, ...props }, ref) => (
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        // Updated: rounded-[2.5rem] and p-10 for a softer, more modern feel
         "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-6 border-none bg-white p-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-[2.5rem]",
         className
       )}
@@ -52,14 +50,12 @@ const AlertDialogFooter = ({
   ...props
 }) => (
   <div
-    // Updated: p-2 margin for spacing
     className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-4 mt-4", className)}
     {...props} />
 )
 AlertDialogFooter.displayName = "AlertDialogFooter"
 
 const AlertDialogTitle = React.forwardRef(({ className, ...props }, ref) => (
-  // Updated: font-black and tracking-tighter for the premium brand look
   <AlertDialogPrimitive.Title 
     ref={ref} 
     className={cn("text-2xl font-black text-slate-900 uppercase tracking-tighter", className)} 
@@ -68,7 +64,6 @@ const AlertDialogTitle = React.forwardRef(({ className, ...props }, ref) => (
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName
 
 const AlertDialogDescription = React.forwardRef(({ className, ...props }, ref) => (
-  // Updated: text-slate-500 and font-medium
   <AlertDialogPrimitive.Description
     ref={ref}
     className={cn("text-sm font-medium text-slate-500 leading-relaxed", className)}
@@ -81,7 +76,6 @@ const AlertDialogAction = React.forwardRef(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action 
     ref={ref} 
     className={cn(
-      // Updated: Uses your signature Slate/Purple button style
       buttonVariants(), 
       "bg-slate-900 hover:bg-purple-600 text-white rounded-2xl h-12 px-8 font-bold transition-all active:scale-95",
       className
@@ -102,6 +96,7 @@ const AlertDialogCancel = React.forwardRef(({ className, ...props }, ref) => (
 ))
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
 
+// THIS IS THE CRITICAL BLOCK THAT WAS LIKELY MISSING OR CORRUPTED
 export {
   AlertDialog,
   AlertDialogPortal,

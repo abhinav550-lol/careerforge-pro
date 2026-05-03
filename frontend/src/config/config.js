@@ -1,6 +1,6 @@
-const AUTH_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-const API_KEY = import.meta.env.VITE_STRAPI_API_KEY;
-const GEMENI_API_KEY = import.meta.env.VITE_GEMENI_API_KEY;
-const VITE_APP_URL = import.meta.env.VITE_APP_URL;
+// ONLY store public-facing URLs in the frontend config.
+// ALL secret API keys (Gemini, Database, etc.) MUST live in your backend .env file.
 
-export { AUTH_KEY, API_KEY, GEMENI_API_KEY,VITE_APP_URL };
+const VITE_APP_URL = import.meta.env.VITE_APP_URL || "http://localhost:5001";
+
+export { VITE_APP_URL };

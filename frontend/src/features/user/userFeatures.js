@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  userData: "",
+  // ALIGNMENT FIX: Use null instead of "" for an unauthenticated user object
+  userData: null, 
 };
 
 export const userSlice = createSlice({
@@ -11,9 +12,13 @@ export const userSlice = createSlice({
     addUserData: (state, action) => {
       state.userData = action.payload;
     },
+    // Optional but recommended: A dedicated logout reducer
+    clearUserData: (state) => {
+      state.userData = null;
+    }
   },
 });
 
-export const { addUserData } = userSlice.actions;
+export const { addUserData, clearUserData } = userSlice.actions;
 
 export default userSlice.reducer;

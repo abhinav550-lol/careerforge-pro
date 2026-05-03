@@ -131,3 +131,24 @@
 .animate-forge-glow {
   animation: forge-glow 3s ease-in-out infinite;
 }
+
+
+/* Week 4 Final Polish: PDF Boundary Rules */
+@media print {
+  .preview-container section {
+    page-break-inside: avoid;
+    margin-bottom: 10mm;
+  }
+  
+  /* Ensure images and ratings don't disappear */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Prevent text clipping in PDF */
+#resume-preview {
+  overflow: visible !important;
+  height: auto !important;
+}

@@ -1,21 +1,26 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { config } from "dotenv";
+import dotenv from "dotenv";
 
-// Import Routers
-import userRouter from "./routes/user.routes.js";
-import resumeRouter from "./routes/resume.routes.js";
+// 1. Import Optimized Routers (Updated paths based on your file tree)
+import userRouter from "./routes/userRoutes.js";
+import resumeRouter from "./routes/resumeRoutes.js";
+import aiRouter from "./routes/aiRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js"
+import { handleStripeWebhook } from "./controller/stripe.controller.js";    
+
+// 2. Import Global Error Middleware
+import { errorHandler } from "./middleware/errorMiddleware.js";
 
 // Load Environment Variables
-config();
+dotenv.config();
 
 const app = express();
 
-// --- 1. GLOBAL MIDDLEWARE ---
-
-// Security & Cross-Origin Resource Sharing
+// --- 3. GLOBAL MIDDLEWARE ---
 const corsOptions = {
+    // Uses environment variable for security, defaults to Vite dev server
     origin: process.env.ALLOWED_SITE || "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -23,33 +28,28 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Parsing Middlewares
-app.use(express.json({ limit: "16kb" })); // Protection against large payloads
+// Parsing Middlewares with security limits
+app.use(express.json({ limit: "16kb" })); 
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public")); // Serves static assets if needed for PDFs
 app.use(cookieParser());
 
-// --- 2. API ROUTES ---
-
-/**
- * Health Check Route
- * Useful for monitoring and confirming server status
- */
-app.get("/health", (req, res) => {
-    res.status(200).json({ status: "success", message: "Server is healthy" });
-});
-
-/**
- * Main Application Routes
- * Prefixing with /api ensures a clean API structure
- */
+// --- 4. API ROUTES ---
+app.post(
+    "/api/payments/webhook", 
+    express.raw({ type: 'application/json' }), 
+    handleStripeWebhook
+);
 app.use("/api/users", userRouter);
 app.use("/api/resumes", resumeRouter);
+app.use("/api/ai", aiRouter); 
+app.use("/api/payments", paymentRouter);
 
-// --- 3. ERROR HANDLING ---
+// --- 5. ERROR HANDLING ---
 
 /**
  * 404 Not Found Middleware
- * Catches any request that doesn't match the routes above
+ * Catch-all for routes that do not exist
  */
 app.use((req, res, next) => {
     const error = new Error(`Not Found - ${req.originalUrl}`);
@@ -59,22 +59,8 @@ app.use((req, res, next) => {
 
 /**
  * Global Error Handler
- * This prevents the server from leaking sensitive stack traces in production
+ * Integrated with your standardized ApiError logic
  */
-app.use((err, req, res, next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    
-    console.error(`[ERROR] ${err.message}`);
-    if (process.env.NODE_ENV !== 'production') {
-        console.error(err.stack);
-    }
-
-    res.status(statusCode).json({
-        success: false,
-        message: err.message || "Internal Server Error",
-        // Only show stack trace if not in production
-        ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
-    });
-});
+app.use(errorHandler);
 
 export default app;

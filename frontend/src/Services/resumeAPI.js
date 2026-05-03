@@ -2,84 +2,77 @@ import axios from "axios";
 import { VITE_APP_URL } from "@/config/config";
 
 const axiosInstance = axios.create({
-  baseURL: VITE_APP_URL + "api/",
+  baseURL: VITE_APP_URL + "/api/",
   headers: {
     "Content-Type": "application/json",
   },
   withCredentials: true,
 });
 
-const createNewResume = async (data) => {
+/**
+ * @desc Get All Resumes for the Dashboard
+ */
+export const getAllResumeData = async () => {
   try {
-    const response = await axiosInstance.post(
-      "resumes/createResume",
-      data.data
-    );
+    // ALIGNMENT FIX: You must add "/all" to match resumeRoutes.js[cite: 31]
+    const response = await axiosInstance.get("resumes/all"); 
     return response.data;
   } catch (error) {
-    // console.log("Eroor in getting all the resumes ",error);
-    throw new Error(
-      error?.response?.data?.message || error?.message || "Something Went Wrong"
-    );
+    throw new Error(error?.response?.data?.message || "Failed to fetch resumes");
   }
 };
 
-const getAllResumeData = async () => {
+/**
+ * @desc Get Single Resume by ID for the Editor
+ * This is the function your EditResume.jsx is looking for.
+ */
+export const getResumeData = async (resumeID) => {
   try {
-    const response = await axiosInstance.get("resumes/getAllResume");
+    // Matches your backend route GET /api/resumes/single?id=xxxx
+    const response = await axiosInstance.get(`resumes/single?id=${resumeID}`);
     return response.data;
   } catch (error) {
-    // console.log("Eroor in getting all the resumes ",error);
-    throw new Error(
-      error?.response?.data?.message || error?.message || "Something Went Wrong"
-    );
+    throw new Error(error?.response?.data?.message || "Failed to load resume");
   }
 };
 
-const getResumeData = async (resumeID) => {
+/**
+ * @desc Create a New Resume
+ */
+export const createNewResume = async (data) => {
   try {
-    const response = await axiosInstance.get(
-      `resumes/getResume?id=${resumeID}`
-    );
+    const response = await axiosInstance.post("resumes/", data.data || data);
     return response.data;
   } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || error?.message || "Something Went Wrong"
-    );
+    throw new Error(error?.response?.data?.message || "Creation failed");
   }
 };
 
-const updateThisResume = async (resumeID, data) => {
+/**
+ * @desc Update Existing Resume
+ * Aligned with PUT /api/resumes/?id=...
+ */
+export const updateThisResume = async (resumeID, data) => {
   try {
-    const response = await axiosInstance.put(
-      `resumes/updateResume?id=${resumeID}`,
-      data.data
-    );
-    return response.data;
+    // We pass the data directly. Ensure your backend is receiving req.body correctly.
+    const response = await axiosInstance.put(`resumes/?id=${resumeID}`, data);
+    
+    // This MUST return a value for the 'await' in the component to finish
+    return response.data; 
   } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || error?.message || "Something Went Wrong"
-    );
+    // If you don't 'throw' here, the component 'try' block thinks it succeeded!
+    throw error; 
   }
 };
 
-const deleteThisResume = async (resumeID) => {
+/**
+ * @desc Delete Resume
+ */
+export const deleteThisResume = async (resumeID) => {
   try {
-    const response = await axiosInstance.delete(
-      `resumes/removeResume?id=${resumeID}`
-    );
+    const response = await axiosInstance.delete(`resumes/?id=${resumeID}`);
     return response.data;
   } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || error?.message || "Something Went Wrong"
-    );
+    throw new Error(error?.response?.data?.message || "Deletion failed");
   }
-};
-
-export {
-  getAllResumeData,
-  deleteThisResume,
-  getResumeData,
-  updateThisResume,
-  createNewResume,
 };

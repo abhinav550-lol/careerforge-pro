@@ -2,15 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 import resumeReducers from "../features/resume/resumeFeatures";
 import userReducers from "../features/user/userFeatures";
 
-export const resumeStore = configureStore({
+// ALIGNMENT FIX: Export a single, unified store
+export const store = configureStore({
   reducer: {
-    editResume: resumeReducers,
-    editUser: userReducers,
+    editResume: resumeReducers, // Access via state.editResume
+    editUser: userReducers,     // Access via state.editUser
   },
 });
 
-export const userStore = configureStore({
-  reducer: {
-    editUser: userReducers,
-  },
-});
+export default store;

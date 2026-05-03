@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input"; // Added Input import
+import { Input } from "@/components/ui/input";
 import { CloudUpload, Loader2, Zap, FileText, Sparkles, X, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 function OptimizeModal({ open, setOpen }) {
   const [file, setFile] = useState(null);
   const [jd, setJd] = useState("");
-  const [title, setTitle] = useState(""); // New State for Title
+  const [title, setTitle] = useState(""); 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -24,42 +24,42 @@ function OptimizeModal({ open, setOpen }) {
     }
   };
 
-  // Inside handleOptimize function
-const handleOptimize = async () => {
-  if (!file || !jd || !title) {
-    return toast.error("Title, File, and Job Description are required!");
-  }
-
-  setLoading(true);
-
-  
-  const formData = new FormData();
-  formData.append("resume", file);
-  formData.append("jobDescription", jd);
-  formData.append("title", title); // Send the title to backend
-
-  try {
-    const baseUrl = "http://localhost:5001"; // Or your env variable
-const response = await axios.post(`${baseUrl}/api/resumes/optimize-existing`, formData, {
-  withCredentials: true, // Critical for isUserAvailable to work
-  headers: { "Content-Type": "multipart/form-data" }
-});
-    
-    if (response.data?.resumeId) {
-      toast.success("Studio Initialized!");
-      setOpen(false);
-      navigate(`/dashboard/edit-resume/${response.data.resumeId}`);
+  const handleOptimize = async () => {
+    if (!file || !jd || !title) {
+      return toast.error("Title, File, and Job Description are required!");
     }
-  } catch (error) {
-  console.error("FULL ERROR OBJECT:", error); // Check your browser console!
-  
-  // This will show you exactly what the backend is complaining about
-  const backendError = error.response?.data?.details || error.response?.data?.error || "Initialization failed.";
-  toast.error(backendError); 
-} finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("resume", file);
+    formData.append("jobDescription", jd);
+    formData.append("title", title); 
+
+    try {
+      // ALIGNMENT FIX: Dynamic environment variable for production readiness
+      const rawUrl = import.meta.env.VITE_APP_URL || "http://localhost:5001";
+      const baseUrl = rawUrl.replace(/\/+$/, "");
+
+      const response = await axios.post(`${baseUrl}/api/ai/transform-resume`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      if (response.data?.resumeId || response.data?.data?.resumeId) {
+        const generatedId = response.data.resumeId || response.data.data.resumeId;
+        toast.success("Studio Initialized!");
+        setOpen(false);
+        navigate(`/dashboard/edit-resume/${generatedId}`);
+      }
+    } catch (error) {
+      console.error("FULL ERROR OBJECT:", error); 
+      const backendError = error.response?.data?.details || error.response?.data?.error || error.response?.data?.message || "Initialization failed.";
+      toast.error(backendError); 
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -80,7 +80,6 @@ const response = await axios.post(`${baseUrl}/api/resumes/optimize-existing`, fo
           </div>
 
           <div className="space-y-6">
-            {/* NEW TITLE INPUT */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Resume Title</label>
               <Input 
@@ -91,7 +90,6 @@ const response = await axios.post(`${baseUrl}/api/resumes/optimize-existing`, fo
               />
             </div>
 
-            {/* FILE UPLOAD */}
             <div className="relative group">
               <input type="file" id="resume-upload" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
               <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-[2rem] cursor-pointer transition-all ${file ? "bg-purple-50 border-purple-200" : "bg-slate-50 border-slate-100 hover:bg-white hover:border-purple-200"}`}>
@@ -105,7 +103,6 @@ const response = await axios.post(`${baseUrl}/api/resumes/optimize-existing`, fo
               </label>
             </div>
 
-            {/* JD INPUT */}
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Job Description</label>
               <Textarea

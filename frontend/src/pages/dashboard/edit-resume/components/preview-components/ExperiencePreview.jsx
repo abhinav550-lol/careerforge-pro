@@ -8,7 +8,7 @@ function ExperiencePreview({ resumeInfo }) {
 
   return (
     <div className="my-6">
-      {/* 1. SECTION HEADER: Left-aligned for high-end professional authority */}
+      {/* 1. SECTION HEADER */}
       <div className="mb-3">
         <h2
           className="font-bold text-[13px] uppercase tracking-wider"
@@ -50,9 +50,10 @@ function ExperiencePreview({ resumeInfo }) {
               </span>
             </div>
 
-            {/* 3. ACHIEVEMENT SUMMARY: Structured for high-impact scanning */}
+            {/* 3. ACHIEVEMENT SUMMARY - FIX APPLIED HERE */}
             <div
-              className="text-[11px] mt-2 text-slate-800 preview-rich-text experience-bullet-list"
+              // ADDED: 'whitespace-pre-wrap' to force HTML to respect \n line breaks
+              className="text-[11px] mt-2 text-slate-800 preview-rich-text experience-bullet-list whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: experience?.workSummary }}
               style={{
                 lineHeight: "1.6",
@@ -62,7 +63,7 @@ function ExperiencePreview({ resumeInfo }) {
         ))}
       </div>
 
-      {/* 4. ATS BULLET LOGIC: Ensuring machine-readable indentation */}
+      {/* 4. ATS BULLET LOGIC */}
       <style jsx>{`
         .experience-bullet-list :global(ul) {
           list-style-type: disc;

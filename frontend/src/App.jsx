@@ -1,49 +1,71 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import Header from "./components/custom/Header";
-import { Toaster } from "./components/ui/sonner";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
+import { useDispatch, useSelector } from "react-redux";
+
+// ALIGNMENT FIX: Use direct production imports to avoid Mock Fallback
+import Header from "./components/custom/Header"; 
 import { addUserData } from "./features/user/userFeatures";
 import { startUser } from "./Services/login";
-import { resumeStore } from "./store/store";
-import { Provider } from "react-redux";
 
 function App() {
   const navigate = useNavigate();
-  const user = useSelector((state) => state.editUser.userData);
+  const location = useLocation();
   const dispatch = useDispatch();
+  
+  const user = useSelector((state) => state.editUser?.userData);
+  const [authChecking, setAuthChecking] = useState(true);
 
   useEffect(() => {
-    const fetchResponse = async () => {
+    const verifySession = async () => {
       try {
         const response = await startUser();
-        if (response.statusCode == 200) {
+        if (response && response.statusCode === 200) {
+          // Syncs real user data to Redux
           dispatch(addUserData(response.data));
         } else {
-          dispatch(addUserData(""));
+          dispatch(addUserData(null));
         }
       } catch (error) {
-        console.log("Got Error while fetching user from app", error.message);
-        dispatch(addUserData(""));
+        dispatch(addUserData(null));
+      } finally {
+        setAuthChecking(false);
       }
     };
-    fetchResponse();
-  }, []);
+    verifySession();
+  }, [dispatch]);
 
-  if (!user) {
-    navigate("/");
+  useEffect(() => {
+    if (!authChecking && !user) {
+      if (location.pathname.includes("/dashboard")) {
+        navigate("/");
+      }
+    }
+  }, [authChecking, user, navigate, location]);
+
+  if (authChecking) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Verifying Professional Session...</p>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <>
-      <Provider store={resumeStore}>
-        <Header user={user} />
+ return (
+  <>
+    <Toaster />
+    <div className="min-h-screen bg-slate-50">
+      {/* HEADER FIX: This will now show your real Sign Out button */}
+      <Header user={user} />
+      <main>
         <Outlet />
-        <Toaster />
-      </Provider>
-    </>
-  );
+      </main>
+    </div>
+  </>
+);
 }
 
 export default App;

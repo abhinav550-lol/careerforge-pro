@@ -30,22 +30,19 @@ function ThemeColor({ resumeInfo }) {
     setSelectedColor(color);
     
     // UI (UX): Immediate Redux dispatch for zero-latency Live Preview
-    dispatch(
-      addResumeData({
-        ...resumeInfo,
-        themeColor: color,
-      })
-    );
-
-    const data = {
-      data: {
-        themeColor: color,
-      },
+    const updatedResume = {
+      ...resumeInfo,
+      themeColor: color,
     };
+    dispatch(addResumeData(updatedResume));
 
+    // ALIGNMENT FIX: Send the flat object to match the updated Mongoose schema
     try {
-      await updateThisResume(resume_id, data);
-      toast.success("Professional Style Updated");
+      const result = await updateThisResume(resume_id, updatedResume);
+      
+      if (result && (result.success || result.statusCode === 200)) {
+         toast.success("Professional Style Updated");
+      }
     } catch (error) {
       toast.error("Failed to sync your preferences");
     }
@@ -93,7 +90,6 @@ function ThemeColor({ resumeInfo }) {
                 {(selectedColor === item || resumeInfo?.themeColor === item) && (
                   <Check className="w-4 h-4 text-white drop-shadow-sm" />
                 )}
-                {/* Tooltip effect on hover */}
                 <div className="absolute -top-8 bg-slate-900 text-white text-[8px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-bold uppercase tracking-tighter">
                   {item}
                 </div>

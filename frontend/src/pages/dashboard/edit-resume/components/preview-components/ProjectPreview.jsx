@@ -1,20 +1,28 @@
 import React from "react";
 
+/**
+ * ProjectPreview Component
+ * Renders technical projects with dynamic theme coloring and 
+ * support for multi-line AI descriptions.
+ */
 function ProjectPreview({ resumeInfo }) {
-  const themeColor = resumeInfo?.themeColor || "#1e293b";
+  // Define themeColor at the top level of the component
+  const themeColor = resumeInfo?.themeColor || "#6366f1";
 
-  // Hide section if no projects exist
-  if (!resumeInfo?.projects || resumeInfo?.projects?.length === 0) return null;
+  // Hide the entire section if no projects exist
+  if (!resumeInfo?.projects || resumeInfo?.projects?.length === 0) {
+    return null;
+  }
 
   return (
     <div className="my-6">
-      {/* 1. SECTION HEADER: Left-aligned for universal professional authority */}
+      {/* SECTION HEADER */}
       <div className="mb-3">
         <h2
           className="font-bold text-[13px] uppercase tracking-wider"
           style={{ color: themeColor }}
         >
-          Selected Projects
+          Projects
         </h2>
         <hr
           className="border-[1.5px] mt-1"
@@ -22,38 +30,46 @@ function ProjectPreview({ resumeInfo }) {
         />
       </div>
 
-      {/* 2. PROJECT LIST */}
+      {/* PROJECT LIST */}
       <div className="space-y-5">
-        {resumeInfo?.projects?.map((project, index) => (
+        {resumeInfo.projects.map((project, index) => (
           <div key={index} className="leading-relaxed">
-            <div className="flex justify-between items-baseline">
+            {/* Project Title and Link */}
+            <div className="font-bold flex justify-between items-baseline">
               <h3
                 className="text-[12px] font-bold"
                 style={{ color: themeColor }}
               >
-                {project?.projectName}
+                {/* ALIGNMENT FIX: Matches 'title' key from Projects.jsx */}
+                {project?.title}
               </h3>
+              {project?.link && (
+                <span className="text-[9px] text-slate-400 font-medium">
+                  {project.link}
+                </span>
+              )}
             </div>
 
-            {/* 3. TECH STACK / TOOLS: Formatted as a subtle sub-header */}
-            {project?.techStack && (
+            {/* Tools & Technologies */}
+            {/* ALIGNMENT FIX: Matches 'tools' key from Projects.jsx */}
+            {project?.tools && (
               <div className="text-[11px] font-semibold text-slate-700 mt-0.5">
                 <span className="italic font-medium text-slate-500">Core Tools: </span>
-                {project.techStack.split(",").map((tech, i) => (
+                {project.tools.split(",").map((tech, i) => (
                   <React.Fragment key={i}>
                     {tech.trim()}
-                    {i < project.techStack.split(",").length - 1 ? " | " : ""}
+                    {i < project.tools.split(",").length - 1 ? " | " : ""}
                   </React.Fragment>
                 ))}
               </div>
             )}
 
-            {/* 4. CONTENT AREA: Structured for high-impact readability */}
+            {/* Project Description/Impact */}
+            {/* ALIGNMENT FIX: Matches 'description' key from Projects.jsx */}
             <div
-              className="text-[11px] mt-2 text-slate-800 preview-rich-text custom-bullet-list"
-              dangerouslySetInnerHTML={{ __html: project?.projectSummary }}
+              className="text-[11px] mt-2 text-slate-800 whitespace-pre-wrap custom-bullet-list"
+              dangerouslySetInnerHTML={{ __html: project?.description }}
               style={{
-                // Ensure the list has proper spacing for both humans and ATS
                 lineHeight: "1.6",
               }}
             />
@@ -75,4 +91,5 @@ function ProjectPreview({ resumeInfo }) {
   );
 }
 
+// CRITICAL EXPORT: Prevents "does not provide an export named default" error
 export default ProjectPreview;
