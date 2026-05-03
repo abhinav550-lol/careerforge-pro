@@ -1,64 +1,78 @@
-# 🚀 CareerForge Pro: AI-Powered Resume Architect
+# CareerForge Pro 🚀 | AI-Powered Resume Architect
 
-**CareerForge Pro** is a high-performance, full-stack SaaS application designed to help developers and professionals "architect" their future. It isn't just a resume builder; it's an AI-driven career tool that analyzes job descriptions, generates optimized content, and provides real-time feedback to beat ATS algorithms.
+CareerForge Pro is a next-generation **AI-First SaaS** platform built to dominate the modern job market. Powered by **Gemini 3 Flash**, it moves beyond static interfaces to provide actionable career intelligence through a supercharged MERN stack.
 
----
-
-## 🛠 Tech Stack
-
-### Frontend
-* **React.js (Vite):** Ultra-fast frontend development and HMR.
-* **Tailwind CSS:** Modern utility-first styling for a pixel-perfect UI.
-* **Framer Motion:** High-end micro-animations and page transitions.
-* **Redux Toolkit:** Centralized state management for real-time resume syncing.
-* **Lucide React:** Consistent, high-quality iconography.
-
-### Backend
-* **Node.js & Express.js:** Scalable server-side architecture.
-* **MongoDB (Atlas):** NoSQL database for flexible resume data storage.
-* **Google Gemini 3 Flash:** Cutting-edge AI for content generation and JD analysis.
-* **Puppeteer:** Headless browser for precise server-side PDF rendering.
-* **JWT & Bcrypt:** Secure authentication and password hashing.
-
----
+## 🧠 Cognitive Architecture
+*   **The Brain**: Gemini 3 Flash (via Google AI SDK) provides industry-leading inference speed and multimodal reasoning[cite: 11].
+*   **The Memory**: MongoDB Atlas Vector Search handles semantic embeddings for RAG-based context retrieval[cite: 11].
+*   **The Orchestrator**: Node.js and LangChain.js manage the "Chain of Thought" logic and JD-Resume mapping[cite: 11].
+*   **The Interface**: React.js utilizing Server-Sent Events (SSE) for instantaneous, streaming AI text delivery[cite: 11].
 
 ## ✨ Key Features
+*   **Gemini-Powered ATS Audit**: Real-time industry matching with high compatibility accuracy across professional fields[cite: 11].
+*   **Executive Cover Letter Forge**: An agentic system that rewrites bullet points and creates tailored letters under 300 words[cite: 11].
+*   **Success Hub Dashboard**: A centralized repository featuring real-time AI credit tracking and ATS readiness stats[cite: 8, 11].
+*   **Pixel-Perfect PDF Rendering**: Backend Puppeteer service for non-editable, professionally formatted PDF output[cite: 11].
+*   **SaaS Billing Engine**: Full Stripe integration supporting "Standard Engine" and "Executive Suite" tiers[cite: 8, 11].
 
-### 🧠 AI-First Intelligence
-* **JD Analyzer:** Compares your resume against a specific Job Description to provide a match score and identify missing keywords.
-* **Smart Summary:** Generates professional, high-impact summaries based on your target job title and skills.
-* **Experience Refiner:** Uses senior recruiter logic to architect bullet points focusing on achievements and impact.
+## 🛠️ Tech Stack
+*   **Frontend**: React.js, Tailwind CSS, Framer Motion, Lucide React, Redux Toolkit.
+*   **Backend**: Node.js, Express, MongoDB Atlas, Mongoose.
+*   **AI/ML**: Gemini 3 Flash API, pdf-parse-new, LangChain.js.
+*   **Infrastructure**: Stripe API, Puppeteer, Multer, Docker.
 
-### 🎨 Modular Templates
-* **Template Switcher:** Instantly toggle between **Modern Minimal** (Single Column) and **Professional Sidebar** (Two-Column) layouts.
-* **Theme Engine:** Customize the primary brand color across all layouts with a single click.
+## 🚀 Getting Started
 
-### 🔒 Enterprise Security
-* **Secure Handshake:** All AI logic is executed on the backend to prevent API key exposure in the browser.
-* **SaaS Architecture:** Robust Auth flow with automatic onboarding for new users.
+### Prerequisites
+*   Node.js (v18+)
+*   MongoDB Atlas Account (with Vector Search enabled)
+*   Gemini API Key (Google AI Studio)
+
+### Installation
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://github.com/yourusername/careerforge-pro.git](https://github.com/yourusername/careerforge-pro.git)
+    cd careerforge-pro
+    ```
+
+2.  **Backend Configuration**
+    ```bash
+    cd backend
+    npm install
+    ```
+    Configure `.env`:
+    ```env
+    PORT=5001
+    MONGODB_URI=your_mongodb_uri
+    GEMINI_API_KEY=your_gemini_3_flash_key
+    STRIPE_SECRET_KEY=your_stripe_key
+    STRIPE_PRO_PLAN_PRICE_ID=price_your_id
+    FRONTEND_URL=http://localhost:5173
+    ```
+
+3.  **Frontend Configuration**
+    ```bash
+    cd ../frontend
+    npm install
+    ```
+    Configure `.env`:
+    ```env
+    VITE_APP_URL=http://localhost:5001
+    ```
+
+4.  **Run Development Environment**
+    ```bash
+    # Run Backend & Frontend respectively
+    npm run dev
+    ```
+
+## 🛡️ Reliability & Scale
+*   **Exponential Backoff**: Custom retry logic handles 429 (Rate Limit) and 503 (Overloaded) errors for the Gemini API[cite: 10].
+*   **Containerization**: Mandatory Docker support ensures environment consistency across staging and production[cite: 11].
+*   **Secure Webhooks**: Stripe webhooks ensure immediate "Pro" status activation upon payment[cite: 11].
 
 ---
-
-## 🚀 Installation & Setup
-
-### 1. Backend Setup
-```bash
-cd backend
-npm install
-# Create a .env file and add:
-# PORT=5001, MONGODB_URI, JWT_SECRET_KEY, GEMINI_API_KEY,ALLOWED_SITE, 
-npm run dev
-
-
-
-### 1. Frontend Setup
-```bash
-cd frontend
-npm install
-# Create a .env.local file and add:
-# VITE_APP_URL=http://localhost:5001
-npm run dev
-
+*Developed by Pratik Suthar as part of the Zaalima Development AI Engineering Division.*
 
 
 
