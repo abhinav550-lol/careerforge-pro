@@ -100,6 +100,8 @@ export const generatePdf = asyncHandler(async (req, res) => {
             throw new ApiError(500, "Resume content failed to render properly.");
         }
 
+		// Debug: Capture a screenshot if PDF generation fails later
+
         // 6. Capture PDF
         const pdfBuffer = await page.pdf({
     format: "A4",
