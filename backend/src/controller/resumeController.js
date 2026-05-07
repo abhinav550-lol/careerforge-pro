@@ -17,6 +17,8 @@ const start = asyncHandler(async (req, res) => {
  * @desc    Create a new resume entry
  * @route   POST /api/resumes/
  */
+
+// Note: This endpoint initializes a resume document with default/empty values. The frontend can then update it with actual data. --
 const createResume = asyncHandler(async (req, res) => {
     const { title, themeColor } = req.body;
 
