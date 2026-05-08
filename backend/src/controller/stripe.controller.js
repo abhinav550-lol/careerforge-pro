@@ -5,9 +5,11 @@ import { ApiError } from "../utils/ApiError.js";
 import dotenv from "dotenv";
 dotenv.config();
 
+// Initialize Stripe client with the secret key from environment variables.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = asyncHandler(async (req, res) => {
+    // Build a subscription checkout session for the Pro plan.
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -17,9 +19,11 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
             },
         ],
         mode: 'subscription',
+        // Send the user back to the dashboard and include the session id for client-side verification.
         success_url: `${process.env.FRONTEND_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.FRONTEND_URL}/dashboard`,
         customer_email: req.user.email,
+        // Store the user id so the webhook can map the session back to the user.
         client_reference_id: req.user._id.toString(), // Crucial for Webhook identification
     });
 
@@ -32,12 +36,14 @@ export const handleStripeWebhook = asyncHandler(async (req, res) => {
     let event;
 
     try {
+        // Verify the webhook signature to ensure the request is from Stripe.
         event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
         throw new ApiError(400, `Webhook Error: ${err.message}`);
     }
 
     if (event.type === 'checkout.session.completed') {
+        // On successful checkout, mark the user as Pro and store the Stripe customer id.
         const session = event.data.object;
         
         // Update User in Database
