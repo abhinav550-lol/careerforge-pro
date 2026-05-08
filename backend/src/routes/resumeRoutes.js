@@ -23,6 +23,9 @@ router.get("/start", start);
  * All these routes require a valid session via authMiddleware
  */
 
+
+//ALL THE ROUTES
+
 // 1. Create a new document
 router.post("/", isUserAvailable, createResume);
 
