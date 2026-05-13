@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 
 const { Schema, model } = mongoose;
 
+// User schema with auth fields and billing/credits metadata.
 const userSchema = new Schema({
   fullName: {
     type: String,
@@ -22,7 +23,7 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Password is required"],
   },
-  // --- ADDED FOR STRIPE & PRD WEEK 3 ---
+  // Stripe and subscription-related fields.
   subscriptionStatus: {
     type: String,
     enum: ["standard", "pro"], // Restricts values to your PRD tiers
@@ -46,7 +47,7 @@ const userSchema = new Schema({
   timestamps: true 
 });
 
-// Pre-save Middleware for Hashing
+// Hash passwords before persisting new or updated users.
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   try {
@@ -58,7 +59,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Instance Method for Authentication
+// Compare a plain password with the stored hash for login.
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
